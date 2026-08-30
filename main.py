@@ -144,11 +144,28 @@ def init_db():
 init_db()
 
 @app.get("/")
+@app.get("/index.html")
 def read_root():
-    index_file = os.path.join(PUBLIC_PATH, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
+    # البحث عن index.html في المسارات المحتملة
+    possible_paths = [
+        os.path.join(PUBLIC_PATH, "index.html"),
+        os.path.join(BASE_DIR, "public", "index.html"),
+        os.path.join(BASE_DIR, "oruk_pharmacy_system", "public", "index.html"),
+    ]
+    for p in possible_paths:
+        if os.path.exists(p):
+            return FileResponse(p)
     return {"message": "🏥 نظام صيدلية أوروك يعمل بنجاح"}
+
+@app.get("/{full_path:path}")
+def catch_all(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="المسار غير موجود")
+    # إذا كان ملف ثابت موجود في public
+    static_file = os.path.join(PUBLIC_PATH, full_path)
+    if os.path.exists(static_file) and os.path.isfile(static_file):
+        return FileResponse(static_file)
+    return read_root()
 
 @app.get("/api/backup-download")
 def download_backup():
