@@ -161,16 +161,6 @@ def read_root():
             return FileResponse(p)
     return {"message": "🏥 نظام صيدلية أوروك يعمل بنجاح"}
 
-@app.get("/{full_path:path}")
-def catch_all(full_path: str):
-    if full_path.startswith("api/"):
-        raise HTTPException(status_code=404, detail="المسار غير موجود")
-    # إذا كان ملف ثابت موجود في public
-    static_file = os.path.join(PUBLIC_PATH, full_path)
-    if os.path.exists(static_file) and os.path.isfile(static_file):
-        return FileResponse(static_file)
-    return read_root()
-
 @app.get("/api/backup-download")
 def download_backup():
     if os.path.exists(DB_PATH):
@@ -581,6 +571,15 @@ def get_audit_logs():
     rows = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return rows
+
+@app.get("/{full_path:path}")
+def catch_all(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="المسار غير موجود")
+    static_file = os.path.join(PUBLIC_PATH, full_path)
+    if os.path.exists(static_file) and os.path.isfile(static_file):
+        return FileResponse(static_file)
+    return read_root()
 
 def run_server():
     port = int(os.environ.get("PORT", 3000))
