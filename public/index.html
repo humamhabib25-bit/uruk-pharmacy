@@ -338,9 +338,19 @@
                                 </div>
                                 <input type="date" id="income-date" onchange="updateDayName(this, 'income-day-name')" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white">
                             </div>
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-500">مبلغ الدخل اليومي (د.ع)</label>
-                                <input type="text" id="income-amount" onfocus="clearZero(this)" oninput="formatNumberInput(this)" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-emerald-600 dark:text-emerald-400 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block font-bold mb-1 text-slate-500">المبلغ كاش (د.ع) 💵</label>
+                                    <input type="text" id="income-cash" onfocus="clearZero(this)" oninput="formatNumberInput(this); updateIncomeTotalPreview();" value="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-emerald-600 dark:text-emerald-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block font-bold mb-1 text-slate-500">المبلغ كي كارد (د.ع) 💳</label>
+                                    <input type="text" id="income-qicard" onfocus="clearZero(this)" oninput="formatNumberInput(this); updateIncomeTotalPreview();" value="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-indigo-600 dark:text-indigo-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+                            <div class="bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 p-2.5 rounded-2xl flex justify-between items-center text-xs">
+                                <span class="font-bold text-slate-600 dark:text-slate-300">إجمالي الدخل المحسوب:</span>
+                                <strong id="income-total-preview" class="text-sm font-black text-emerald-700 dark:text-emerald-300">0 د.ع</strong>
                             </div>
                             <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-98 text-white py-3 rounded-2xl font-black text-xs transition shadow-md shadow-emerald-600/20">
                                 ✓ حفظ وتثبيت الدخل اليومي
@@ -688,7 +698,7 @@
             
             <div class="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-4 flex-wrap gap-3">
                 <div class="space-y-2">
-                    <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-2.5 flex-wrap">
                         <h3 id="statement-heading" class="font-black text-xl text-slate-900 dark:text-white">كشف الحساب</h3>
                         
                         <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
@@ -699,6 +709,17 @@
                                 <span>💬</span>
                                 <span>واتساب المندوب</span>
                             </a>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+                            <span class="text-slate-400 font-bold">🏷️ الصنف:</span>
+                            <select id="sup-category-select" onchange="updateSupplierCategory()" class="border-0 bg-transparent text-xs font-black focus:outline-none dark:text-white cursor-pointer">
+                                <option value="أدوية عامة">أدوية عامة</option>
+                                <option value="مستلزمات طبية">مستلزمات طبية</option>
+                                <option value="تجميل وعناية">تجميل وعناية</option>
+                                <option value="حليب وأغذية">حليب وأغذية</option>
+                                <option value="وكيل حصري">وكيل حصري</option>
+                            </select>
                         </div>
                     </div>
 
@@ -869,7 +890,9 @@
                     <thead>
                         <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-black">
                             <th class="p-3">التاريخ</th>
-                            <th class="p-3">المبلغ</th>
+                            <th class="p-3 text-emerald-600">كاش 💵</th>
+                            <th class="p-3 text-indigo-600">كي كارد 💳</th>
+                            <th class="p-3 font-black text-slate-900 dark:text-white">الإجمالي 💰</th>
                             <th class="p-3 text-center">الإجراءات</th>
                         </tr>
                     </thead>
@@ -1145,7 +1168,14 @@
             }
         }
 
-        // --- إدارة الدخل اليومي ---
+        // --- إدارة الدخل اليومي (كاش + كي كارد) ---
+        function updateIncomeTotalPreview() {
+            const cash = parseFormattedNumber(document.getElementById('income-cash').value);
+            const qicard = parseFormattedNumber(document.getElementById('income-qicard').value);
+            const total = cash + qicard;
+            document.getElementById('income-total-preview').innerText = `${total.toLocaleString()} د.ع`;
+        }
+
         async function loadIncomeFromDatabase() {
             try {
                 const res = await fetch('/api/income');
@@ -1153,7 +1183,11 @@
                     const rows = await res.json();
                     incomeRecords = {};
                     rows.forEach(r => {
-                        incomeRecords[r.date] = r.amount;
+                        incomeRecords[r.date] = {
+                            amount: r.amount,
+                            cash_amount: r.cash_amount !== undefined ? r.cash_amount : r.amount,
+                            qicard_amount: r.qicard_amount || 0
+                        };
                     });
                 }
             } catch (err) {
@@ -1164,9 +1198,12 @@
         async function saveDailyIncome(e) {
             e.preventDefault();
             const dateStr = document.getElementById('income-date').value;
-            const amount = parseFormattedNumber(document.getElementById('income-amount').value);
-            if (!dateStr || amount <= 0) {
-                showToast('الرجاء إدخال تاريخ ومبلغ صحيح', 'error');
+            const cash = parseFormattedNumber(document.getElementById('income-cash').value);
+            const qicard = parseFormattedNumber(document.getElementById('income-qicard').value);
+            const total = cash + qicard;
+
+            if (!dateStr || total <= 0) {
+                showToast('الرجاء إدخال تاريخ ومبلغ صالح للكاش أو الكي كارد', 'error');
                 return;
             }
 
@@ -1174,13 +1211,24 @@
                 const res = await fetch('/api/income', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ date: dateStr, amount })
+                    body: JSON.stringify({ 
+                        date: dateStr, 
+                        amount: total, 
+                        cash_amount: cash, 
+                        qicard_amount: qicard 
+                    })
                 });
 
                 if (res.ok) {
-                    incomeRecords[dateStr] = amount;
-                    document.getElementById('income-amount').value = '0';
-                    showToast('✅ تم حفظ الدخل اليومي في قاعدة البيانات بنجاح');
+                    incomeRecords[dateStr] = {
+                        amount: total,
+                        cash_amount: cash,
+                        qicard_amount: qicard
+                    };
+                    document.getElementById('income-cash').value = '0';
+                    document.getElementById('income-qicard').value = '0';
+                    updateIncomeTotalPreview();
+                    showToast(`✅ تم حفظ الدخل بنجاح: ${total.toLocaleString()} د.ع`);
                     await loadSuppliers();
                 } else {
                     const err = await res.json();
@@ -1206,12 +1254,16 @@
 
             const sortedDates = Object.keys(incomeRecords).sort().reverse();
             if (sortedDates.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">لا توجد سجلات دخل مسجلة</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">لا توجد سجلات دخل مسجلة</td></tr>`;
                 return;
             }
 
             sortedDates.forEach(dateStr => {
-                const amount = incomeRecords[dateStr] || 0;
+                const rec = incomeRecords[dateStr] || {};
+                const total = typeof rec === 'object' ? (rec.amount || 0) : Number(rec || 0);
+                const cash = typeof rec === 'object' ? (rec.cash_amount || 0) : total;
+                const qicard = typeof rec === 'object' ? (rec.qicard_amount || 0) : 0;
+
                 let dayName = '';
                 const parts = dateStr.split('-');
                 if (parts.length === 3) {
@@ -1222,7 +1274,9 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                         <td class="p-3 font-bold">${dateStr} ${dayName ? `(${dayName})` : ''}</td>
-                        <td class="p-3 font-black text-emerald-600 dark:text-emerald-400">${Number(amount).toLocaleString()} د.ع</td>
+                        <td class="p-3 font-bold text-emerald-600 dark:text-emerald-400">${Number(cash).toLocaleString()} د.ع</td>
+                        <td class="p-3 font-bold text-indigo-600 dark:text-indigo-400">${Number(qicard).toLocaleString()} د.ع</td>
+                        <td class="p-3 font-black text-slate-900 dark:text-white">${Number(total).toLocaleString()} د.ع</td>
                         <td class="p-3 text-center flex justify-center gap-1.5">
                             <button onclick="editIncomeRecord('${dateStr}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-xl text-xs font-bold transition">تعديل</button>
                             <button onclick="deleteIncomeRecord('${dateStr}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-xl text-xs font-bold transition">حذف</button>
@@ -1248,29 +1302,46 @@
         }
 
         async function editIncomeRecord(dateStr) {
-            const currentVal = incomeRecords[dateStr] || 0;
-            const newVal = prompt(`تعديل مبلغ دخل يوم ${dateStr}:`, currentVal);
-            if (newVal !== null) {
-                const parsed = parseFormattedNumber(newVal);
-                if (parsed >= 0) {
-                    try {
-                        const res = await fetch('/api/income', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ date: dateStr, amount: parsed })
-                        });
-                        if (res.ok) {
-                            incomeRecords[dateStr] = parsed;
-                            renderIncomeLogTable();
-                            await loadSuppliers();
-                            showToast('تم تحديث سجل الدخل بنجاح');
-                        }
-                    } catch (e) {
-                        showToast('خطأ في تحديث الدخل', 'error');
+            const rec = incomeRecords[dateStr] || {};
+            const currentCash = typeof rec === 'object' ? (rec.cash_amount || 0) : (rec || 0);
+            const currentQicard = typeof rec === 'object' ? (rec.qicard_amount || 0) : 0;
+
+            const newCash = prompt(`تعديل مبلغ الكاش ليوم ${dateStr}:`, currentCash);
+            if (newCash === null) return;
+            const newQicard = prompt(`تعديل مبلغ الكي كارد ليوم ${dateStr}:`, currentQicard);
+            if (newQicard === null) return;
+
+            const parsedCash = parseFormattedNumber(newCash);
+            const parsedQicard = parseFormattedNumber(newQicard);
+            const total = parsedCash + parsedQicard;
+
+            if (total >= 0) {
+                try {
+                    const res = await fetch('/api/income', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            date: dateStr, 
+                            amount: total, 
+                            cash_amount: parsedCash, 
+                            qicard_amount: parsedQicard 
+                        })
+                    });
+                    if (res.ok) {
+                        incomeRecords[dateStr] = {
+                            amount: total,
+                            cash_amount: parsedCash,
+                            qicard_amount: parsedQicard
+                        };
+                        renderIncomeLogTable();
+                        await loadSuppliers();
+                        showToast('تم تحديث سجل الدخل بنجاح');
                     }
-                } else {
-                    showToast('قيمة غير صالحة', 'error');
+                } catch (e) {
+                    showToast('خطأ في تحديث الدخل', 'error');
                 }
+            } else {
+                showToast('قيمة غير صالحة', 'error');
             }
         }
 
@@ -2109,6 +2180,28 @@
             }
         }
 
+        async function updateSupplierCategory() {
+            if (!activeSupId) return;
+            const category = document.getElementById('sup-category-select').value;
+            const supObj = suppliersCache.find(s => s.id == activeSupId);
+            const phone = supObj ? supObj.phone : '';
+            try {
+                const res = await fetch(`/api/suppliers/${activeSupId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: activeSupName, phone, category })
+                });
+                if (res.ok) {
+                    if (supObj) supObj.category = category;
+                    document.getElementById('statement-category-chip').innerText = `🏷️ ${category}`;
+                    await loadSuppliers();
+                    showToast('✅ تم تحديث صنف المذخر بنجاح');
+                }
+            } catch (e) {
+                showToast('خطأ في تحديث صنف المذخر', 'error');
+            }
+        }
+
         async function toggleArchiveActiveSupplier() {
             if (!activeSupId) return;
             const supObj = suppliersCache.find(s => s.id == activeSupId);
@@ -2370,6 +2463,8 @@
             const isArchived = supObj && supObj.is_archived === 1;
 
             document.getElementById('sup-phone-input').value = phoneVal;
+            const catSelect = document.getElementById('sup-category-select');
+            if (catSelect) catSelect.value = catVal;
             document.getElementById('statement-category-chip').innerText = `🏷️ ${catVal}`;
             
             const archBtn = document.getElementById('archive-sup-btn');

@@ -58,8 +58,19 @@ function initDatabase() {
         db.run(`CREATE TABLE IF NOT EXISTS daily_income (
             date TEXT PRIMARY KEY,
             amount REAL DEFAULT 0,
+            cash_amount REAL DEFAULT 0,
+            qicard_amount REAL DEFAULT 0,
             created_at TEXT DEFAULT ''
         )`);
+
+        db.all("PRAGMA table_info(daily_income)", [], (err, cols) => {
+            if (!err && cols) {
+                const colNames = cols.map(c => c.name);
+                if (!colNames.includes('cash_amount')) db.run("ALTER TABLE daily_income ADD COLUMN cash_amount REAL DEFAULT 0");
+                if (!colNames.includes('qicard_amount')) db.run("ALTER TABLE daily_income ADD COLUMN qicard_amount REAL DEFAULT 0");
+                db.run("UPDATE daily_income SET cash_amount = amount WHERE cash_amount = 0 AND qicard_amount = 0 AND amount > 0");
+            }
+        });
 
         db.run(`CREATE TABLE IF NOT EXISTS audit_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -295,21 +306,28 @@ app.post('/api/payment-plans', (req, res) => {
 
 // --- سجل الإيرادات اليومية ---
 app.get('/api/income', (req, res) => {
-    db.all(`SELECT date, amount FROM daily_income ORDER BY date DESC`, [], (err, rows) => {
+    db.all(`SELECT date, amount, COALESCE(cash_amount, amount) AS cash_amount, COALESCE(qicard_amount, 0) AS qicard_amount FROM daily_income ORDER BY date DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/income', (req, res) => {
-    const { date, amount } = req.body;
-    if (!date || amount < 0) return res.status(400).json({ error: 'بيانات الدخل غير صالحة' });
+    const { date, amount, cash_amount, qicard_amount } = req.body;
+    const cash = parseFloat(cash_amount || 0);
+    const qicard = parseFloat(qicard_amount || 0);
+    let total = cash + qicard;
+    if (total === 0 && parseFloat(amount || 0) > 0) {
+        total = parseFloat(amount);
+    }
+    if (!date || total < 0) return res.status(400).json({ error: 'بيانات الدخل غير صالحة' });
     const timeNow = new Date().toISOString();
-    const query = `INSERT INTO daily_income (date, amount, created_at) VALUES (?, ?, ?) ON CONFLICT(date) DO UPDATE SET amount = excluded.amount`;
-    db.run(query, [date, amount, timeNow], function(err) {
+    const query = `INSERT INTO daily_income (date, amount, cash_amount, qicard_amount, created_at) VALUES (?, ?, ?, ?, ?) 
+                   ON CONFLICT(date) DO UPDATE SET amount = excluded.amount, cash_amount = excluded.cash_amount, qicard_amount = excluded.qicard_amount`;
+    db.run(query, [date, total, cash, qicard, timeNow], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-        logAudit('تسجيل دخل', `تسجيل دخل يوم ${date} بمبلغ: ${Number(amount).toLocaleString()} د.ع`);
-        res.json({ success: true, date, amount });
+        logAudit('تسجيل دخل', `تسجيل دخل يوم ${date} بإجمالي: ${Number(total).toLocaleString()} د.ع (كاش: ${cash.toLocaleString()} | كي كارد: ${qicard.toLocaleString()})`);
+        res.json({ success: true, date, amount: total, cash_amount: cash, qicard_amount: qicard });
     });
 });
 

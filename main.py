@@ -113,9 +113,21 @@ def init_db():
         CREATE TABLE IF NOT EXISTS daily_income (
             date TEXT PRIMARY KEY,
             amount REAL DEFAULT 0,
+            cash_amount REAL DEFAULT 0,
+            qicard_amount REAL DEFAULT 0,
             created_at TEXT DEFAULT ''
         )
     """)
+
+    cursor.execute("PRAGMA table_info(daily_income)")
+    income_cols = [col["name"] for col in cursor.fetchall()]
+    if "cash_amount" not in income_cols:
+        cursor.execute("ALTER TABLE daily_income ADD COLUMN cash_amount REAL DEFAULT 0")
+    if "qicard_amount" not in income_cols:
+        cursor.execute("ALTER TABLE daily_income ADD COLUMN qicard_amount REAL DEFAULT 0")
+    
+    # تحديث السجلات القديمة بحيث تكون قيم الكاش مساوية للإجمالي إن كانت أصفار
+    cursor.execute("UPDATE daily_income SET cash_amount = amount WHERE cash_amount = 0 AND qicard_amount = 0 AND amount > 0")
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS audit_logs (
@@ -197,7 +209,9 @@ class PaymentPlanCreate(BaseModel):
 
 class IncomeCreate(BaseModel):
     date: str
-    amount: float
+    amount: float = 0
+    cash_amount: float = 0
+    qicard_amount: float = 0
 
 @app.get("/api/suppliers")
 def get_suppliers():
@@ -481,33 +495,45 @@ def save_payment_plans(plan_data: PaymentPlanCreate):
 def get_daily_income():
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT date, amount FROM daily_income ORDER BY date DESC")
+    cursor.execute("SELECT date, amount, COALESCE(cash_amount, amount) AS cash_amount, COALESCE(qicard_amount, 0) AS qicard_amount FROM daily_income ORDER BY date DESC")
     rows = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return rows
 
 @app.post("/api/income")
 def save_daily_income(item: IncomeCreate):
-    if not item.date or item.amount < 0:
+    total = item.cash_amount + item.qicard_amount
+    if total == 0 and item.amount > 0:
+        total = item.amount
+        cash = item.amount
+        qicard = 0.0
+    else:
+        cash = item.cash_amount
+        qicard = item.qicard_amount
+
+    if not item.date or total < 0:
         raise HTTPException(status_code=400, detail="بيانات الدخل غير صالحة")
     conn = get_db()
     cursor = conn.cursor()
     try:
         time_now = datetime.now().isoformat()
         cursor.execute("""
-            INSERT INTO daily_income (date, amount, created_at)
-            VALUES (?, ?, ?)
-            ON CONFLICT(date) DO UPDATE SET amount = excluded.amount
-        """, (item.date, item.amount, time_now))
+            INSERT INTO daily_income (date, amount, cash_amount, qicard_amount, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(date) DO UPDATE SET 
+                amount = excluded.amount,
+                cash_amount = excluded.cash_amount,
+                qicard_amount = excluded.qicard_amount
+        """, (item.date, total, cash, qicard, time_now))
         cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
-                       (time_now, 'تسجيل دخل', f"تسجيل دخل يوم {item.date} بمبلغ: {item.amount:,.0f} د.ع"))
+                       (time_now, 'تسجيل دخل', f"تسجيل دخل يوم {item.date} بإجمالي: {total:,.0f} د.ع (كاش: {cash:,.0f} | كي كارد: {qicard:,.0f})"))
         conn.commit()
     except Exception as e:
         conn.rollback()
         conn.close()
         raise HTTPException(status_code=400, detail=str(e))
     conn.close()
-    return {"success": True, "date": item.date, "amount": item.amount}
+    return {"success": True, "date": item.date, "amount": total, "cash_amount": cash, "qicard_amount": qicard}
 
 @app.delete("/api/income/{date}")
 def delete_daily_income(date: str):
