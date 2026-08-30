@@ -38,24 +38,25 @@
     <style>
         * {
             font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+            box-sizing: border-box;
         }
         body { 
             -webkit-user-select: text !important;
             user-select: text !important;
         }
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.4);
+            background: rgba(156, 163, 175, 0.35);
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.7);
+            background: rgba(156, 163, 175, 0.6);
         }
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
@@ -64,6 +65,122 @@
         .animate-pulse-dot {
             animation: pulse-dot 2s infinite ease-in-out;
         }
+
+        /* تحسينات وتنسيقات مخصصة لشاشات الهواتف المحمولة (Mobile Optimization) */
+        @media (max-width: 768px) {
+            body {
+                padding: 6px 6px 70px 6px !important;
+            }
+            .mobile-header {
+                padding: 12px 14px !important;
+                border-radius: 20px !important;
+            }
+            .mobile-kpi-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 6px !important;
+                margin-top: 10px !important;
+                padding-top: 10px !important;
+            }
+            .mobile-kpi-item {
+                padding: 8px 10px !important;
+                border-radius: 14px !important;
+                gap: 8px !important;
+                min-height: 60px !important;
+            }
+            .mobile-kpi-item .kpi-icon-box {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 15px !important;
+                border-radius: 10px !important;
+            }
+            .mobile-kpi-item .kpi-label {
+                font-size: 9.5px !important;
+            }
+            .mobile-kpi-item .kpi-number {
+                font-size: 12.5px !important;
+            }
+            .supplier-card {
+                padding: 10px !important;
+                border-radius: 16px !important;
+                min-height: 135px !important;
+                gap: 6px !important;
+            }
+            .supplier-card h4 {
+                font-size: 12px !important;
+                line-height: 1.2 !important;
+            }
+            #suppliers-cards-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 6px !important;
+            }
+            .mobile-actions-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 5px !important;
+                width: 100% !important;
+            }
+            .mobile-actions-grid button {
+                padding: 6px 4px !important;
+                font-size: 11px !important;
+                justify-content: center !important;
+                border-radius: 12px !important;
+            }
+            .mobile-filter-container {
+                flex-direction: column !important;
+                gap: 6px !important;
+            }
+            .mobile-search-row {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 6px !important;
+                width: 100% !important;
+            }
+            .mobile-status-strip {
+                width: 100% !important;
+                overflow-x: auto !important;
+                padding: 2px !important;
+            }
+            .mobile-status-strip button {
+                padding: 4px 8px !important;
+                font-size: 10.5px !important;
+                flex-shrink: 0 !important;
+            }
+            .mobile-card-box {
+                padding: 12px !important;
+                border-radius: 20px !important;
+                gap: 8px !important;
+            }
+            .mobile-tier-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 6px !important;
+            }
+            .mobile-tier-item {
+                padding: 8px 6px !important;
+                border-radius: 12px !important;
+            }
+            .mobile-tab-btn {
+                padding: 7px 12px !important;
+                font-size: 11.5px !important;
+                border-radius: 14px !important;
+            }
+            input, select, textarea {
+                font-size: 12px !important;
+                padding: 7px 10px !important;
+                border-radius: 12px !important;
+            }
+            label {
+                font-size: 10.5px !important;
+            }
+            /* تنسيق النوافذ على الهاتف */
+            .mobile-modal-content {
+                padding: 14px !important;
+                border-radius: 22px !important;
+                max-height: 92vh !important;
+                margin: 6px !important;
+            }
+        }
+
         /* Print styles */
         @media print {
             body * { visibility: hidden !important; }
@@ -73,104 +190,105 @@
             #printable-statement { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 25px; color: black !important; z-index: 99999; }
             #printable-pdf-report { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 25px; color: black !important; display: block !important; z-index: 99999; }
             #printable-voucher { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 25px; color: black !important; display: block !important; z-index: 99999; }
-            .no-print { display: none !important; }
+            .no-print, .mobile-bottom-nav { display: none !important; }
         }
     </style>
 </head>
-<body id="page-body" class="bg-slate-50 dark:bg-[#090d16] text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 antialiased p-3 sm:p-6 flex flex-col justify-between">
+<body id="page-body" class="bg-slate-50 dark:bg-[#090d16] text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 antialiased p-2 sm:p-5 flex flex-col justify-between">
 
-    <div id="toast-container" class="fixed bottom-6 left-6 z-50 space-y-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-16 sm:bottom-6 left-4 sm:left-6 z-50 space-y-2 pointer-events-none"></div>
 
-    <div class="max-w-[1440px] mx-auto w-full space-y-6 flex-1">
+    <div class="max-w-[1440px] mx-auto w-full space-y-3.5 sm:space-y-6 flex-1">
 
-        <!-- الهيدر التنفيذي المطور -->
-        <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 sm:p-6 rounded-3xl shadow-2xl border border-indigo-900/40 relative overflow-hidden backdrop-blur-xl">
+        <!-- الهيدر التنفيذي المطور (متناسق تماماً مع شاشة الموبايل والحاسبة) -->
+        <header class="mobile-header bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl border border-indigo-900/40 relative overflow-hidden backdrop-blur-xl">
             <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <div class="flex items-center gap-4 text-center lg:text-right">
-                    <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/30 ring-4 ring-indigo-400/20 flex-shrink-0">
-                        🏥
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2.5 flex-wrap justify-center lg:justify-start">
-                            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">صيدلية أوروك</h1>
-                            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot"></span>
-                                متصل ويعمل
-                            </span>
+            <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-3 sm:gap-5">
+                <div class="flex items-center gap-3 sm:gap-4 w-full lg:w-auto justify-between lg:justify-start">
+                    <div class="flex items-center gap-2.5 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-3xl shadow-lg shadow-indigo-500/30 ring-2 sm:ring-4 ring-indigo-400/20 flex-shrink-0">
+                            🏥
                         </div>
-                        <p class="text-slate-300 text-xs sm:text-sm mt-1 flex items-center gap-2 flex-wrap justify-center lg:justify-start font-medium">
-                            <span>نظام إدارة المذاخر والديون والإيرادات الذكي</span>
-                            <span class="bg-purple-900/70 text-purple-200 border border-purple-700/60 px-3 py-0.5 rounded-full text-[11px] font-black shadow-inner">إشراف: د. همام 🩺</span>
-                        </p>
+                        <div>
+                            <div class="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
+                                <h1 class="text-base sm:text-2xl lg:text-3xl font-black tracking-tight text-white">صيدلية أوروك</h1>
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.2 sm:px-3 sm:py-0.5 rounded-full text-[9px] sm:text-xs font-bold flex items-center gap-1 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot"></span>
+                                    متصل
+                                </span>
+                            </div>
+                            <p class="text-slate-300 text-[10.5px] sm:text-xs mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
+                                <span class="hidden sm:inline">نظام إدارة المذاخر والديون والإيرادات الذكي</span>
+                                <span class="bg-purple-900/70 text-purple-200 border border-purple-700/60 px-2 py-0.2 sm:px-2.5 sm:py-0.5 rounded-full text-[10px] font-black shadow-inner">د. همام 🩺</span>
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                <!-- أزرار الإجراءات السريعة في الهيدر -->
-                <div class="flex items-center gap-2 flex-wrap justify-center">
-                    <button type="button" onclick="openAuditLogModal()" class="bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-slate-200 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-md" title="سجل تدقيق العمليات">
-                        <span>🛡️</span>
-                        <span>سجل العمليات</span>
-                    </button>
-                    <button type="button" onclick="openRestoreModal()" class="bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-amber-300 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-md" title="استعادة نسخة احتياطية سابقة">
-                        <span>🔄</span>
-                        <span>استعادة نسخة</span>
-                    </button>
-                    <button type="button" onclick="downloadManualBackup()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 border border-indigo-400/30" title="تحميل نسخة احتياطية من قاعدة البيانات">
-                        <span>💾</span>
-                        <span>نسخة احتياطية</span>
-                    </button>
-                    <button type="button" onclick="exportAllSuppliersExcel()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 border border-emerald-400/30" title="تصدير بيانات جميع المذاخر إلى Excel">
-                        <span>📊</span>
-                        <span>تصدير Excel</span>
-                    </button>
-                    <button type="button" onclick="toggleDarkMode()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-amber-400 p-2.5 rounded-2xl border border-slate-700/80 transition-all text-sm font-bold shadow-md" title="التبديل بين الوضع الليلي والنهاري">
-                        🌙 / ☀️
-                    </button>
+                    <!-- أزرار سريعة مصغرة للهاتف والحاسبة -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <button type="button" onclick="downloadManualBackup()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white p-2 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 shadow-md" title="نسخة احتياطية">
+                            <span>💾</span>
+                            <span class="hidden sm:inline">نسخة احتياطية</span>
+                        </button>
+                        <button type="button" onclick="exportAllSuppliersExcel()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white p-2 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 shadow-md" title="تصدير Excel">
+                            <span>📊</span>
+                            <span class="hidden sm:inline">Excel</span>
+                        </button>
+                        <button type="button" onclick="openAuditLogModal()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 p-2 sm:px-3 sm:py-2 rounded-xl text-[11px] font-bold transition-all border border-slate-700 shadow-md" title="سجل العمليات">
+                            <span>🛡️</span>
+                            <span class="hidden sm:inline">سجل</span>
+                        </button>
+                        <button type="button" onclick="openRestoreModal()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-300 p-2 sm:px-3 sm:py-2 rounded-xl text-[11px] font-bold transition-all border border-slate-700 shadow-md" title="استعادة نسخة">
+                            <span>🔄</span>
+                        </button>
+                        <button type="button" onclick="toggleDarkMode()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 p-2 sm:p-2 rounded-xl border border-slate-700/80 transition-all text-xs sm:text-sm font-bold shadow-md" title="التبديل بين الوضع الليلي والنهاري">
+                            🌙
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- بطاقات المؤشرات المالية الرئيسية (KPIs) في الهيدر -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-6 pt-5 border-t border-slate-800/80">
-                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-amber-500/20 flex items-center gap-3.5 shadow-inner">
-                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl flex-shrink-0 border border-amber-500/20">
+            <!-- بطاقات المؤشرات المالية الرئيسية (KPIs) - متساوية تماماً في الحجم على الموبايل -->
+            <div class="mobile-kpi-container grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 mt-3 sm:mt-5 pt-3 sm:pt-4 border-t border-slate-800/80">
+                <div class="mobile-kpi-item bg-slate-800/70 hover:bg-slate-800 transition-colors p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-amber-500/20 flex items-center gap-2 sm:gap-3.5 shadow-inner">
+                    <div class="kpi-icon-box w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm sm:text-xl flex-shrink-0 border border-amber-500/20">
                         💰
                     </div>
-                    <div class="min-w-0">
-                        <span class="block text-[11px] font-bold text-slate-400">إجمالي المديونية الكلية</span>
-                        <strong id="global-debt-display" class="text-lg sm:text-xl font-black text-amber-400 tracking-tight block truncate">0 د.ع</strong>
+                    <div class="min-w-0 flex-1">
+                        <span class="kpi-label block text-[9.5px] sm:text-[11px] font-bold text-slate-400 truncate">المديونية الكلية</span>
+                        <strong id="global-debt-display" class="kpi-number text-xs sm:text-lg lg:text-xl font-black text-amber-400 tracking-tight block truncate">0 د.ع</strong>
                     </div>
                 </div>
 
-                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-rose-500/20 flex items-center gap-3.5 shadow-inner">
-                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl flex-shrink-0 border border-rose-500/20">
+                <div class="mobile-kpi-item bg-slate-800/70 hover:bg-slate-800 transition-colors p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-rose-500/20 flex items-center gap-2 sm:gap-3.5 shadow-inner">
+                    <div class="kpi-icon-box w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-sm sm:text-xl flex-shrink-0 border border-rose-500/20">
                         ⏳
                     </div>
-                    <div class="min-w-0">
-                        <span class="block text-[11px] font-bold text-rose-300">ديون مستحقة (>45 يوم)</span>
-                        <strong id="global-overdue-display" class="text-lg sm:text-xl font-black text-rose-400 tracking-tight block truncate">0 د.ع</strong>
+                    <div class="min-w-0 flex-1">
+                        <span class="kpi-label block text-[9.5px] sm:text-[11px] font-bold text-rose-300 truncate">مستحقة (>45 يوم)</span>
+                        <strong id="global-overdue-display" class="kpi-number text-xs sm:text-lg lg:text-xl font-black text-rose-400 tracking-tight block truncate">0 د.ع</strong>
                     </div>
                 </div>
 
-                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-emerald-500/20 flex items-center gap-3.5 shadow-inner">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl flex-shrink-0 border border-emerald-500/20">
+                <div class="mobile-kpi-item bg-slate-800/70 hover:bg-slate-800 transition-colors p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-emerald-500/20 flex items-center gap-2 sm:gap-3.5 shadow-inner">
+                    <div class="kpi-icon-box w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm sm:text-xl flex-shrink-0 border border-emerald-500/20">
                         💵
                     </div>
-                    <div class="min-w-0">
-                        <span class="block text-[11px] font-bold text-emerald-300">دخل الشهر الحالي</span>
-                        <strong id="global-month-income-display" class="text-lg sm:text-xl font-black text-emerald-400 tracking-tight block truncate">0 د.ع</strong>
+                    <div class="min-w-0 flex-1">
+                        <span class="kpi-label block text-[9.5px] sm:text-[11px] font-bold text-emerald-300 truncate">دخل الشهر</span>
+                        <strong id="global-month-income-display" class="kpi-number text-xs sm:text-lg lg:text-xl font-black text-emerald-400 tracking-tight block truncate">0 د.ع</strong>
                     </div>
                 </div>
 
-                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-indigo-500/20 flex items-center gap-3.5 shadow-inner">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl flex-shrink-0 border border-indigo-500/20">
+                <div class="mobile-kpi-item bg-slate-800/70 hover:bg-slate-800 transition-colors p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-indigo-500/20 flex items-center gap-2 sm:gap-3.5 shadow-inner">
+                    <div class="kpi-icon-box w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm sm:text-xl flex-shrink-0 border border-indigo-500/20">
                         📈
                     </div>
-                    <div class="min-w-0">
-                        <span class="block text-[11px] font-bold text-indigo-300">نسبة تغطية التسديدات</span>
-                        <strong id="global-coverage-display" class="text-lg sm:text-xl font-black text-indigo-300 tracking-tight block truncate">0%</strong>
+                    <div class="min-w-0 flex-1">
+                        <span class="kpi-label block text-[9.5px] sm:text-[11px] font-bold text-indigo-300 truncate">تغطية التسديد</span>
+                        <strong id="global-coverage-display" class="kpi-number text-xs sm:text-lg lg:text-xl font-black text-indigo-300 tracking-tight block truncate">0%</strong>
                     </div>
                 </div>
             </div>
@@ -193,66 +311,67 @@
         </div>
 
         <!-- أشرطة التبويب الرئيسية (Tabs) -->
-        <nav class="flex gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-3 no-print overflow-x-auto">
-            <button onclick="switchTab('suppliers')" id="tab-btn-suppliers" class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 flex-shrink-0">
+        <nav class="flex gap-1.5 sm:gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3 no-print overflow-x-auto">
+            <button onclick="switchTab('suppliers')" id="tab-btn-suppliers" class="mobile-tab-btn px-3.5 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5 flex-shrink-0">
                 <span>📦</span>
-                <span>إدارة المذاخر والديون والإيرادات</span>
+                <span>المذاخر والديون</span>
             </button>
-            <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-2 flex-shrink-0">
+            <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="mobile-tab-btn px-3.5 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-1.5 flex-shrink-0">
                 <span>📊</span>
-                <span>الرسوم البيانية والتحليل المالي</span>
+                <span>الرسوم والتحليل</span>
             </button>
-            <button onclick="switchTab('plans')" id="tab-btn-plans" class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-2 flex-shrink-0">
+            <button onclick="switchTab('plans')" id="tab-btn-plans" class="mobile-tab-btn px-3.5 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-1.5 flex-shrink-0">
                 <span>📋</span>
-                <span>خطط التسديد الشهرية</span>
+                <span>خطط التسديد</span>
             </button>
         </nav>
 
         <!-- المحتوى الرئيسي (Main Content) -->
-        <main class="space-y-6">
+        <main class="space-y-4 sm:space-y-6">
 
             <!-- تبويب 1: إدارة المذاخر والديون والمالية اليومية -->
-            <div id="tab-content-suppliers" class="space-y-6">
+            <div id="tab-content-suppliers" class="space-y-4 sm:space-y-6">
                 
                 <!-- صندوق المذاخر والتحكم الذكي -->
-                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-5">
+                <div class="mobile-card-box bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-3 sm:space-y-5">
                     
-                    <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
-                        <div>
-                            <h2 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <span class="text-indigo-600 dark:text-indigo-400">📦 مذاخر صيدلية أوروك</span>
-                                <span id="suppliers-badge-count" class="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-extrabold border border-indigo-200 dark:border-indigo-800">0 مذخر</span>
-                            </h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">مرتبة تلقائياً لمتابعة المديونيات والكشوفات بكل سهولة وسرعة</p>
+                    <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 sm:pb-5">
+                        <div class="flex justify-between items-center w-full lg:w-auto">
+                            <div>
+                                <h2 class="text-base sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                                    <span class="text-indigo-600 dark:text-indigo-400">📦 مذاخر صيدلية أوروك</span>
+                                    <span id="suppliers-badge-count" class="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-[10.5px] sm:text-xs px-2 py-0.2 rounded-full font-extrabold border border-indigo-200 dark:border-indigo-800">0 مذخر</span>
+                                </h2>
+                                <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">مرتبة تلقائياً لمتابعة المديونيات والكشوفات</p>
+                            </div>
                         </div>
 
-                        <!-- أدوات الفلترة والأزرار الإجرائية -->
-                        <div class="flex gap-2.5 flex-wrap items-center w-full lg:w-auto">
-                            <!-- البحث المباشر -->
-                            <div class="relative flex-1 sm:w-56">
-                                <input type="text" id="sup-search-input" oninput="applyFilter()" placeholder="🔍 بحث عن مذخر أو هاتف..." class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl px-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
+                        <!-- أدوات الفلترة والأزرار الإجرائية المتناسقة مع الموبايل -->
+                        <div class="mobile-filter-container flex flex-wrap gap-2 items-center w-full lg:w-auto">
+                            
+                            <!-- شريط البحث والتصنيف -->
+                            <div class="mobile-search-row flex gap-2 w-full lg:w-auto flex-1">
+                                <input type="text" id="sup-search-input" oninput="applyFilter()" placeholder="🔍 بحث عن مذخر..." class="flex-1 border border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
+                                <select id="sup-category-filter" onchange="applyFilter()" class="border border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl px-2.5 py-1.5 sm:py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
+                                    <option value="all">🏷️ التصنيفات</option>
+                                    <option value="أدوية عامة">أدوية عامة</option>
+                                    <option value="مستلزمات طبية">مستلزمات طبية</option>
+                                    <option value="تجميل وعناية">تجميل وعناية</option>
+                                    <option value="حليب وأغذية">حليب وأغذية</option>
+                                    <option value="وكيل حصري">وكيل حصري</option>
+                                </select>
                             </div>
 
-                            <!-- فلترة التصنيفات -->
-                            <select id="sup-category-filter" onchange="applyFilter()" class="border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
-                                <option value="all">🏷️ كل التصنيفات</option>
-                                <option value="أدوية عامة">أدوية عامة</option>
-                                <option value="مستلزمات طبية">مستلزمات طبية</option>
-                                <option value="تجميل وعناية">تجميل وعناية</option>
-                                <option value="حليب وأغذية">حليب وأغذية</option>
-                                <option value="وكيل حصري">وكيل حصري</option>
-                            </select>
-
                             <!-- فلاتر الحالة بما فيها الأرشفة -->
-                            <div class="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl gap-1 text-xs font-bold border border-slate-200/60 dark:border-slate-700/60 shadow-inner">
-                                <button onclick="filterByStatus('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white shadow transition-all">النشطة</button>
-                                <button onclick="filterByStatus('critical')" id="filter-btn-critical" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-rose-500 transition-all">الحرجة ⚠️</button>
-                                <button onclick="filterByStatus('zero')" id="filter-btn-zero" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-all">الصفرية ✨</button>
-                                <button onclick="filterByStatus('archived')" id="filter-btn-archived" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-500 transition-all">المؤرشفة 📂</button>
+                            <div class="mobile-status-strip flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl sm:rounded-2xl gap-1 text-xs font-bold border border-slate-200/60 dark:border-slate-700/60 shadow-inner">
+                                <button onclick="filterByStatus('all')" id="filter-btn-all" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-indigo-600 text-white shadow transition-all text-[11px]">النشطة</button>
+                                <button onclick="filterByStatus('critical')" id="filter-btn-critical" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-slate-600 dark:text-slate-300 hover:text-rose-500 transition-all text-[11px]">الحرجة ⚠️</button>
+                                <button onclick="filterByStatus('zero')" id="filter-btn-zero" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-all text-[11px]">الصفرية ✨</button>
+                                <button onclick="filterByStatus('archived')" id="filter-btn-archived" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-500 transition-all text-[11px]">المؤرشفة 📂</button>
                             </div>
 
                             <!-- زر التبديل بين عرض البطاقات والجدول -->
-                            <div class="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl gap-1 text-xs font-bold border border-slate-200/60 dark:border-slate-700/60 shadow-inner">
+                            <div class="hidden sm:flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl gap-1 text-xs font-bold border border-slate-200/60 dark:border-slate-700/60 shadow-inner">
                                 <button onclick="setViewMode('cards')" id="view-mode-cards-btn" class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow transition-all flex items-center gap-1" title="عرض البطاقات">
                                     <span>🎴</span>
                                     <span>بطاقات</span>
@@ -263,19 +382,21 @@
                                 </button>
                             </div>
 
-                            <!-- أزرار الإجراءات الرئيسية -->
-                            <button type="button" onclick="openModal('list-modal')" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white px-3.5 py-2 rounded-2xl text-xs font-black shadow-md transition-all flex items-center gap-1">
-                                <span>🛒</span>
-                                <span>+ قائمة</span>
-                            </button>
-                            <button type="button" onclick="openModal('pay-modal')" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white px-3.5 py-2 rounded-2xl text-xs font-black shadow-md transition-all flex items-center gap-1">
-                                <span>💳</span>
-                                <span>+ تسديد</span>
-                            </button>
-                            <button type="button" onclick="openModal('add-sup-modal')" class="bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 active:scale-95 px-3.5 py-2 rounded-2xl text-xs font-black shadow-md transition-all flex items-center gap-1">
-                                <span>➕</span>
-                                <span>مذخر جديد</span>
-                            </button>
+                            <!-- أزرار الإجراءات الرئيسية - متساوية تماماً 3 أعمدة على الموبايل -->
+                            <div class="mobile-actions-grid flex gap-1.5 w-full sm:w-auto">
+                                <button type="button" onclick="openModal('list-modal')" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white py-1.5 px-3 rounded-xl sm:rounded-2xl text-xs font-black shadow-md transition-all flex items-center justify-center gap-1">
+                                    <span>🛒</span>
+                                    <span>+ قائمة</span>
+                                </button>
+                                <button type="button" onclick="openModal('pay-modal')" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white py-1.5 px-3 rounded-xl sm:rounded-2xl text-xs font-black shadow-md transition-all flex items-center justify-center gap-1">
+                                    <span>💳</span>
+                                    <span>+ تسديد</span>
+                                </button>
+                                <button type="button" onclick="openModal('add-sup-modal')" class="bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 active:scale-95 py-1.5 px-3 rounded-xl sm:rounded-2xl text-xs font-black shadow-md transition-all flex items-center justify-center gap-1">
+                                    <span>➕</span>
+                                    <span>مذخر</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -685,10 +806,34 @@
     </div>
 
     <!-- فوتر النظام -->
-    <footer class="max-w-[1440px] mx-auto w-full mt-10 py-5 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400 space-y-1 no-print">
+    <footer class="max-w-[1440px] mx-auto w-full mt-6 sm:mt-10 py-3 sm:py-5 border-t border-slate-200 dark:border-slate-800 text-center text-[10px] sm:text-xs text-slate-400 space-y-0.5 no-print mb-14 sm:mb-0">
         <p class="font-medium">نظام إدارة المذاخر والديون والإيرادات - صيدلية أوروك © 2026</p>
-        <p class="font-bold text-indigo-600 dark:text-indigo-400">تصميم وهندسة برمجية خاصة: د. همام 🩺💼</p>
+        <p class="font-bold text-indigo-600 dark:text-indigo-400">تصميم وتطوير خاص: د. همام 🩺💼</p>
     </footer>
+
+    <!-- شريط التنقل السفلي السريع للهاتف المحمول (Mobile Bottom Navigation Bar) -->
+    <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800 py-1.5 px-3 flex justify-around items-center shadow-[0_-4px_20px_rgba(0,0,0,0.1)] no-print">
+        <button onclick="switchTab('suppliers')" class="flex flex-col items-center gap-0.5 text-indigo-600 dark:text-indigo-400 active:scale-90 transition-transform">
+            <span class="text-base sm:text-lg">📦</span>
+            <span class="text-[9.5px] font-black">المذاخر</span>
+        </button>
+        <button onclick="openModal('list-modal')" class="flex flex-col items-center gap-0.5 text-blue-600 dark:text-blue-400 active:scale-90 transition-transform">
+            <span class="text-base sm:text-lg">🛒</span>
+            <span class="text-[9.5px] font-black">+ قائمة</span>
+        </button>
+        <button onclick="openModal('pay-modal')" class="flex flex-col items-center gap-0.5 text-emerald-600 dark:text-emerald-400 active:scale-90 transition-transform">
+            <span class="text-base sm:text-lg">💳</span>
+            <span class="text-[9.5px] font-black">+ تسديد</span>
+        </button>
+        <button onclick="openIncomeLogModal()" class="flex flex-col items-center gap-0.5 text-teal-600 dark:text-teal-400 active:scale-90 transition-transform">
+            <span class="text-base sm:text-lg">💵</span>
+            <span class="text-[9.5px] font-black">الدخل</span>
+        </button>
+        <button onclick="switchTab('analytics')" class="flex flex-col items-center gap-0.5 text-purple-600 dark:text-purple-400 active:scale-90 transition-transform">
+            <span class="text-base sm:text-lg">📊</span>
+            <span class="text-[9.5px] font-black">التحليلات</span>
+        </button>
+    </nav>
 
     <!-- ==================== النوافذ المنبثقة (MODALS) ==================== -->
 
@@ -1700,36 +1845,36 @@
 
                     const progressPercent = Math.min(100, Math.max(8, (s.remaining_balance / 10000000) * 100));
 
-                    // بناء كارت المذخر الحديث
+                    // بناء كارت المذخر الحديث (متناسق للأجهزة المحمولة وشاشات الحاسبة)
                     if (grid) {
                         grid.innerHTML += `
-                            <div onclick="selectSupplier(${s.id}, '${s.name}')" data-supname="${s.name}" data-phone="${s.phone || ''}" data-category="${s.category || 'أدوية عامة'}" data-statustype="${statusType}" class="supplier-card group bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-indigo-500 dark:hover:border-indigo-500 cursor-pointer transition-all duration-300 space-y-3 flex flex-col justify-between relative overflow-hidden">
+                            <div onclick="selectSupplier(${s.id}, '${s.name}')" data-supname="${s.name}" data-phone="${s.phone || ''}" data-category="${s.category || 'أدوية عامة'}" data-statustype="${statusType}" class="supplier-card group bg-white dark:bg-slate-900 p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-indigo-500 dark:hover:border-indigo-500 cursor-pointer transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
                                 <div>
-                                    <div class="flex justify-between items-start gap-1 mb-1.5">
-                                        <div class="min-w-0">
-                                            <h4 class="font-black text-sm tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate" title="${s.name}">${s.name}</h4>
-                                            <span class="text-[10px] text-slate-400 font-bold block">${s.category || 'أدوية عامة'}</span>
+                                    <div class="flex justify-between items-start gap-1 mb-1">
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="font-black text-xs sm:text-sm tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate" title="${s.name}">${s.name}</h4>
+                                            <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold block truncate">${s.category || 'أدوية عامة'}</span>
                                         </div>
                                         ${ratingBadge}
                                     </div>
-                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1 sm:h-1.5 rounded-full overflow-hidden my-1">
                                         <div class="${healthColor} h-full transition-all duration-500" style="width: ${progressPercent}%"></div>
                                     </div>
                                 </div>
 
-                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-col gap-1.5 text-xs">
+                                <div class="pt-1.5 sm:pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-col gap-1 text-[11px] sm:text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-slate-400 font-medium">المديونية:</span>
-                                        <span class="font-black text-amber-600 dark:text-amber-400 text-sm">${s.remaining_balance.toLocaleString()}</span>
+                                        <span class="text-slate-400 font-medium text-[10px] sm:text-xs">المديونية:</span>
+                                        <span class="font-black text-amber-600 dark:text-amber-400 text-xs sm:text-sm">${s.remaining_balance.toLocaleString()}</span>
                                     </div>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-rose-400 font-medium">مستحقة (>45):</span>
-                                        <span class="font-bold ${supOverdue > 0 ? 'text-rose-600 font-black' : 'text-slate-400'}">${supOverdue.toLocaleString()}</span>
+                                        <span class="text-rose-400 font-medium text-[9.5px] sm:text-xs">مستحقة:</span>
+                                        <span class="font-bold text-[10.5px] sm:text-xs ${supOverdue > 0 ? 'text-rose-600 font-black' : 'text-slate-400'}">${supOverdue.toLocaleString()}</span>
                                     </div>
                                 </div>
 
-                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[11px] text-indigo-600 dark:text-indigo-400 font-black group-hover:translate-x-1 transition-transform">
-                                    <span>كشف الحساب 📄</span>
+                                <div class="pt-1 sm:pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] sm:text-[11px] text-indigo-600 dark:text-indigo-400 font-black">
+                                    <span>كشف 📄</span>
                                     <span>←</span>
                                 </div>
                             </div>
@@ -1790,29 +1935,29 @@
                 document.getElementById('suppliers-badge-count').innerText = `${activeCount} نشط`;
 
                 document.getElementById('suppliers-tier-stats').innerHTML = `
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                        <span class="block text-slate-400 text-[10px] font-bold">صفرية (0)</span>
-                        <strong class="text-emerald-500 text-base font-black">${tierZero}</strong>
+                    <div class="mobile-tier-item bg-slate-50 dark:bg-slate-800/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[9px] sm:text-[10px] font-bold truncate">مصفّر (0)</span>
+                        <strong class="text-emerald-500 text-xs sm:text-base font-black">${tierZero}</strong>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                        <span class="block text-slate-400 text-[10px] font-bold">تحت مليون</span>
-                        <strong class="text-blue-500 text-base font-black">${tierUnder1M}</strong>
+                    <div class="mobile-tier-item bg-slate-50 dark:bg-slate-800/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[9px] sm:text-[10px] font-bold truncate">&lt; 1 مليون</span>
+                        <strong class="text-blue-500 text-xs sm:text-base font-black">${tierUnder1M}</strong>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                        <span class="block text-slate-400 text-[10px] font-bold">1 إلى 5 مليون</span>
-                        <strong class="text-indigo-500 text-base font-black">${tier1to5M}</strong>
+                    <div class="mobile-tier-item bg-slate-50 dark:bg-slate-800/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[9px] sm:text-[10px] font-bold truncate">1 - 5 مليون</span>
+                        <strong class="text-indigo-500 text-xs sm:text-base font-black">${tier1to5M}</strong>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                        <span class="block text-slate-400 text-[10px] font-bold">5 إلى 10 مليون</span>
-                        <strong class="text-amber-500 text-base font-black">${tier5to10M}</strong>
+                    <div class="mobile-tier-item bg-slate-50 dark:bg-slate-800/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[9px] sm:text-[10px] font-bold truncate">5 - 10 مليون</span>
+                        <strong class="text-amber-500 text-xs sm:text-base font-black">${tier5to10M}</strong>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                        <span class="block text-slate-400 text-[10px] font-bold">10 إلى 15 مليون</span>
-                        <strong class="text-orange-500 text-base font-black">${tier10to15M}</strong>
+                    <div class="mobile-tier-item bg-slate-50 dark:bg-slate-800/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[9px] sm:text-[10px] font-bold truncate">10 - 15 مليون</span>
+                        <strong class="text-orange-500 text-xs sm:text-base font-black">${tier10to15M}</strong>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                        <span class="block text-slate-400 text-[10px] font-bold">أكثر من 15 مليون</span>
-                        <strong class="text-rose-500 text-base font-black">${tierAbove15M}</strong>
+                    <div class="mobile-tier-item bg-slate-50 dark:bg-slate-800/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[9px] sm:text-[10px] font-bold truncate">&gt; 15 مليون</span>
+                        <strong class="text-rose-500 text-xs sm:text-base font-black">${tierAbove15M}</strong>
                     </div>
                 `;
 
