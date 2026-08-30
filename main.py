@@ -142,6 +142,49 @@ def init_db():
         )
     """)
 
+    # جداول الصرفيات والتصنيفات التشغيلية والعامة
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS expense_categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            main_type TEXT NOT NULL,
+            name TEXT NOT NULL,
+            is_custom INTEGER DEFAULT 0,
+            UNIQUE(main_type, name)
+        )
+    """)
+
+    cursor.execute("SELECT count(*) FROM expense_categories")
+    if cursor.fetchone()[0] == 0:
+        default_categories = [
+            ('تشغيلية', 'رواتب كوادر وصيادلة', 0),
+            ('تشغيلية', 'إيجار الصيدلية', 0),
+            ('تشغيلية', 'كهرباء ومولدات', 0),
+            ('تشغيلية', 'نثريات ومستلزمات صيدلية', 0),
+            ('تشغيلية', 'صيانة وتبريد وتجهيزات', 0),
+            ('عامة', 'ضيافة ونظافة', 0),
+            ('عامة', 'تسويق ودعاية', 0),
+            ('عامة', 'رسوم وتجديد نقابة وضريبة', 0),
+            ('عامة', 'سحوبات شخصية', 0),
+            ('عامة', 'مصاريف نثرية عامة', 0),
+            ('عامة', 'أخرى', 0)
+        ]
+        cursor.executemany("INSERT OR IGNORE INTO expense_categories (main_type, name, is_custom) VALUES (?, ?, ?)", default_categories)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            main_type TEXT NOT NULL,
+            category_name TEXT NOT NULL,
+            sub_category TEXT DEFAULT '',
+            amount REAL NOT NULL,
+            payment_method TEXT DEFAULT 'كاش',
+            recipient TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            created_at TEXT DEFAULT ''
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -223,6 +266,20 @@ class IncomeCreate(BaseModel):
     amount: float = 0
     cash_amount: float = 0
     qicard_amount: float = 0
+
+class ExpenseCategoryCreate(BaseModel):
+    main_type: str
+    name: str
+
+class ExpenseCreate(BaseModel):
+    date: str
+    main_type: str
+    category_name: str
+    sub_category: str = ""
+    amount: float
+    payment_method: str = "كاش"
+    recipient: str = ""
+    notes: str = ""
 
 @app.get("/api/suppliers")
 def get_suppliers():
@@ -571,6 +628,214 @@ def get_audit_logs():
     rows = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return rows
+
+# ==================== قسم إدارة الصرفيات والمصاريف (Expenses APIs) ====================
+
+@app.get("/api/expense-categories")
+def get_expense_categories():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM expense_categories ORDER BY id ASC")
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return rows
+
+@app.post("/api/expense-categories")
+def add_expense_category(cat: ExpenseCategoryCreate):
+    name_clean = cat.name.strip()
+    if not name_clean:
+        raise HTTPException(status_code=400, detail="اسم التصنيف لا يمكن أن يكون فارغاً")
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO expense_categories (main_type, name, is_custom) VALUES (?, ?, 1)",
+                       (cat.main_type, name_clean))
+        new_id = cursor.lastrowid
+        time_now = datetime.now().isoformat()
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'إضافة تصنيف صرفيات', f"إضافة تصنيف جديد: {name_clean} ضمن قسم {cat.main_type}"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail="التصنيف موجود مسبقاً أو غير صالح")
+    conn.close()
+    return {"success": True, "id": new_id, "main_type": cat.main_type, "name": name_clean}
+
+@app.delete("/api/expense-categories/{cat_id}")
+def delete_expense_category(cat_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT name, main_type FROM expense_categories WHERE id = ?", (cat_id,))
+        cat_row = cursor.fetchone()
+        cat_name = cat_row["name"] if cat_row else str(cat_id)
+        cursor.execute("DELETE FROM expense_categories WHERE id = ?", (cat_id,))
+        time_now = datetime.now().isoformat()
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'حذف تصنيف صرفيات', f"حذف تصنيف صرفيات: {cat_name}"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
+@app.get("/api/expenses")
+def get_expenses(month: str = None, main_type: str = None):
+    conn = get_db()
+    cursor = conn.cursor()
+    query = "SELECT * FROM expenses WHERE 1=1"
+    params = []
+    if month:
+        query += " AND date LIKE ?"
+        params.append(f"{month}%")
+    if main_type and main_type != "all":
+        query += " AND main_type = ?"
+        params.append(main_type)
+    query += " ORDER BY date DESC, id DESC"
+    cursor.execute(query, params)
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return rows
+
+@app.post("/api/expenses")
+def create_expense(item: ExpenseCreate):
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("""
+            INSERT INTO expenses (date, main_type, category_name, sub_category, amount, payment_method, recipient, notes, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (item.date, item.main_type, item.category_name, item.sub_category, item.amount, item.payment_method, item.recipient, item.notes, time_now))
+        new_id = cursor.lastrowid
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'تسجيل صرفية', f"تسجيل صرفية {item.main_type} ({item.category_name}) بمبلغ {item.amount:,.0f} د.ع ({item.payment_method})"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True, "id": new_id}
+
+@app.put("/api/expenses/{exp_id}")
+def update_expense(exp_id: int, item: ExpenseCreate):
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("""
+            UPDATE expenses SET 
+                date = ?, main_type = ?, category_name = ?, sub_category = ?, 
+                amount = ?, payment_method = ?, recipient = ?, notes = ?
+            WHERE id = ?
+        """, (item.date, item.main_type, item.category_name, item.sub_category, item.amount, item.payment_method, item.recipient, item.notes, exp_id))
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'تعديل صرفية', f"تعديل صرفية رقم #{exp_id} ({item.category_name}) بمبلغ {item.amount:,.0f} د.ع"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
+@app.delete("/api/expenses/{exp_id}")
+def delete_expense(exp_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("DELETE FROM expenses WHERE id = ?", (exp_id,))
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'حذف صرفية', f"حذف صرفية رقم #{exp_id}"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
+@app.get("/api/financial-summary")
+def get_financial_summary(month: str = None):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # 1. دخل الصيدلية (كاش + كي كارد)
+    income_query = "SELECT COALESCE(SUM(amount), 0) AS total_income, COALESCE(SUM(cash_amount), 0) AS cash_income, COALESCE(SUM(qicard_amount), 0) AS qicard_income FROM daily_income"
+    params = []
+    if month:
+        income_query += " WHERE date LIKE ?"
+        params.append(f"{month}%")
+    cursor.execute(income_query, params)
+    inc_row = cursor.fetchone()
+    total_income = inc_row["total_income"] or 0
+    cash_income = inc_row["cash_income"] or 0
+    qicard_income = inc_row["qicard_income"] or 0
+
+    # 2. الصرفيات التشغيلية والعامة
+    exp_query = "SELECT main_type, payment_method, COALESCE(SUM(amount), 0) as total FROM expenses"
+    exp_params = []
+    if month:
+        exp_query += " WHERE date LIKE ?"
+        exp_params.append(f"{month}%")
+    exp_query += " GROUP BY main_type, payment_method"
+    cursor.execute(exp_query, exp_params)
+    exp_rows = cursor.fetchall()
+    
+    operational_expenses = 0
+    general_expenses = 0
+    expenses_cash = 0
+    expenses_qicard = 0
+
+    for r in exp_rows:
+        amt = r["total"] or 0
+        if r["main_type"] == "تشغيلية":
+            operational_expenses += amt
+        else:
+            general_expenses += amt
+        if r["payment_method"] == "كي كارد":
+            expenses_qicard += amt
+        else:
+            expenses_cash += amt
+
+    total_direct_expenses = operational_expenses + general_expenses
+
+    # 3. تسديدات المذاخر
+    sup_pay_query = "SELECT COALESCE(SUM(payment_amount), 0) as total_supplier_pays, COALESCE(SUM(discount_amount), 0) as total_discounts FROM supplier_transactions"
+    sup_params = []
+    if month:
+        sup_pay_query += " WHERE date LIKE ?"
+        sup_params.append(f"{month}%")
+    cursor.execute(sup_pay_query, sup_params)
+    sup_row = cursor.fetchone()
+    total_supplier_pays = sup_row["total_supplier_pays"] or 0
+    total_supplier_discounts = sup_row["total_discounts"] or 0
+
+    # 4. إجمالي المنصرف والصافي الكلي
+    total_outflow = total_direct_expenses + total_supplier_pays
+    net_profit = total_income - total_outflow
+
+    conn.close()
+    return {
+        "month": month or "all",
+        "total_income": total_income,
+        "cash_income": cash_income,
+        "qicard_income": qicard_income,
+        "operational_expenses": operational_expenses,
+        "general_expenses": general_expenses,
+        "total_direct_expenses": total_direct_expenses,
+        "expenses_cash": expenses_cash,
+        "expenses_qicard": expenses_qicard,
+        "total_supplier_pays": total_supplier_pays,
+        "total_supplier_discounts": total_supplier_discounts,
+        "total_outflow": total_outflow,
+        "net_profit": net_profit
+    }
 
 @app.get("/{full_path:path}")
 def catch_all(full_path: str):

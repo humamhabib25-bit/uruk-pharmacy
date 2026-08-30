@@ -78,6 +78,48 @@ function initDatabase() {
             action_type TEXT,
             details TEXT
         )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS expense_categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            main_type TEXT NOT NULL,
+            name TEXT NOT NULL,
+            is_custom INTEGER DEFAULT 0,
+            UNIQUE(main_type, name)
+        )`);
+
+        db.get(`SELECT count(*) as count FROM expense_categories`, [], (err, row) => {
+            if (!err && row && row.count === 0) {
+                const defaultCats = [
+                    ['تشغيلية', 'رواتب كوادر وصيادلة', 0],
+                    ['تشغيلية', 'إيجار الصيدلية', 0],
+                    ['تشغيلية', 'كهرباء ومولدات', 0],
+                    ['تشغيلية', 'نثريات ومستلزمات صيدلية', 0],
+                    ['تشغيلية', 'صيانة وتبريد وتجهيزات', 0],
+                    ['عامة', 'ضيافة ونظافة', 0],
+                    ['عامة', 'تسويق ودعاية', 0],
+                    ['عامة', 'رسوم وتجديد نقابة وضريبة', 0],
+                    ['عامة', 'سحوبات شخصية', 0],
+                    ['عامة', 'مصاريف نثرية عامة', 0],
+                    ['عامة', 'أخرى', 0]
+                ];
+                const stmt = db.prepare("INSERT OR IGNORE INTO expense_categories (main_type, name, is_custom) VALUES (?, ?, ?)");
+                defaultCats.forEach(c => stmt.run(c));
+                stmt.finalize();
+            }
+        });
+
+        db.run(`CREATE TABLE IF NOT EXISTS expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            main_type TEXT NOT NULL,
+            category_name TEXT NOT NULL,
+            sub_category TEXT DEFAULT '',
+            amount REAL NOT NULL,
+            payment_method TEXT DEFAULT 'كاش',
+            recipient TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            created_at TEXT DEFAULT ''
+        )`);
     });
 }
 
@@ -345,6 +387,163 @@ app.get('/api/audit-logs', (req, res) => {
     db.all(`SELECT * FROM audit_logs ORDER BY id DESC LIMIT 200`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
+    });
+});
+
+// --- إدارة الصرفيات والمصاريف ---
+app.get('/api/expense-categories', (req, res) => {
+    db.all(`SELECT * FROM expense_categories ORDER BY id ASC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/expense-categories', (req, res) => {
+    const { main_type, name } = req.body;
+    const nameClean = (name || '').trim();
+    if (!nameClean) return res.status(400).json({ error: 'اسم التصنيف لا يمكن أن يكون فارغاً' });
+    db.run(`INSERT INTO expense_categories (main_type, name, is_custom) VALUES (?, ?, 1)`, [main_type, nameClean], function(err) {
+        if (err) return res.status(400).json({ error: 'التصنيف موجود مسبقاً أو غير صالح' });
+        logAudit('إضافة تصنيف صرفيات', `إضافة تصنيف جديد: ${nameClean} ضمن قسم ${main_type}`);
+        res.json({ success: true, id: this.lastID, main_type, name: nameClean });
+    });
+});
+
+app.delete('/api/expense-categories/:id', (req, res) => {
+    const id = req.params.id;
+    db.run(`DELETE FROM expense_categories WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        logAudit('حذف تصنيف صرفيات', `حذف تصنيف رقم: ${id}`);
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/expenses', (req, res) => {
+    const { month, main_type } = req.query;
+    let query = `SELECT * FROM expenses WHERE 1=1`;
+    const params = [];
+    if (month) {
+        query += ` AND date LIKE ?`;
+        params.push(`${month}%`);
+    }
+    if (main_type && main_type !== 'all') {
+        query += ` AND main_type = ?`;
+        params.push(main_type);
+    }
+    query += ` ORDER BY date DESC, id DESC`;
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/expenses', (req, res) => {
+    const { date, main_type, category_name, sub_category, amount, payment_method, recipient, notes } = req.body;
+    const amt = parseFloat(amount || 0);
+    if (!date || amt <= 0) return res.status(400).json({ error: 'بيانات الصرفية غير صالحة' });
+    const timeNow = new Date().toISOString();
+    const payMethod = payment_method || 'كاش';
+    db.run(`INSERT INTO expenses (date, main_type, category_name, sub_category, amount, payment_method, recipient, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [date, main_type, category_name, sub_category || '', amt, payMethod, recipient || '', notes || '', timeNow],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            logAudit('تسجيل صرفية', `تسجيل صرفية ${main_type} (${category_name}) بمبلغ ${amt.toLocaleString()} د.ع (${payMethod})`);
+            res.json({ success: true, id: this.lastID });
+        }
+    );
+});
+
+app.put('/api/expenses/:id', (req, res) => {
+    const id = req.params.id;
+    const { date, main_type, category_name, sub_category, amount, payment_method, recipient, notes } = req.body;
+    const amt = parseFloat(amount || 0);
+    db.run(`UPDATE expenses SET date = ?, main_type = ?, category_name = ?, sub_category = ?, amount = ?, payment_method = ?, recipient = ?, notes = ? WHERE id = ?`,
+        [date, main_type, category_name, sub_category || '', amt, payment_method || 'كاش', recipient || '', notes || '', id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            logAudit('تعديل صرفية', `تعديل صرفية رقم #${id} (${category_name}) بمبلغ ${amt.toLocaleString()} د.ع`);
+            res.json({ success: true });
+        }
+    );
+});
+
+app.delete('/api/expenses/:id', (req, res) => {
+    const id = req.params.id;
+    db.run(`DELETE FROM expenses WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        logAudit('حذف صرفية', `حذف صرفية رقم #${id}`);
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/financial-summary', (req, res) => {
+    const { month } = req.query;
+    let incQ = `SELECT COALESCE(SUM(amount), 0) AS total_income, COALESCE(SUM(cash_amount), 0) AS cash_income, COALESCE(SUM(qicard_amount), 0) AS qicard_income FROM daily_income`;
+    let incParams = [];
+    if (month) {
+        incQ += ` WHERE date LIKE ?`;
+        incParams.push(`${month}%`);
+    }
+
+    db.get(incQ, incParams, (err, incRow) => {
+        const total_income = incRow ? incRow.total_income : 0;
+        const cash_income = incRow ? incRow.cash_income : 0;
+        const qicard_income = incRow ? incRow.qicard_income : 0;
+
+        let expQ = `SELECT main_type, payment_method, COALESCE(SUM(amount), 0) as total FROM expenses`;
+        let expParams = [];
+        if (month) {
+            expQ += ` WHERE date LIKE ?`;
+            expParams.push(`${month}%`);
+        }
+        expQ += ` GROUP BY main_type, payment_method`;
+
+        db.all(expQ, expParams, (err, expRows) => {
+            let operational_expenses = 0;
+            let general_expenses = 0;
+            let expenses_cash = 0;
+            let expenses_qicard = 0;
+
+            (expRows || []).forEach(r => {
+                const amt = r.total || 0;
+                if (r.main_type === 'تشغيلية') operational_expenses += amt;
+                else general_expenses += amt;
+                if (r.payment_method === 'كي كارد') expenses_qicard += amt;
+                else expenses_cash += amt;
+            });
+
+            const total_direct_expenses = operational_expenses + general_expenses;
+
+            let supQ = `SELECT COALESCE(SUM(payment_amount), 0) as total_supplier_pays, COALESCE(SUM(discount_amount), 0) as total_discounts FROM supplier_transactions`;
+            let supParams = [];
+            if (month) {
+                supQ += ` WHERE date LIKE ?`;
+                supParams.push(`${month}%`);
+            }
+
+            db.get(supQ, supParams, (err, supRow) => {
+                const total_supplier_pays = supRow ? supRow.total_supplier_pays : 0;
+                const total_supplier_discounts = supRow ? supRow.total_discounts : 0;
+                const total_outflow = total_direct_expenses + total_supplier_pays;
+                const net_profit = total_income - total_outflow;
+
+                res.json({
+                    month: month || 'all',
+                    total_income,
+                    cash_income,
+                    qicard_income,
+                    operational_expenses,
+                    general_expenses,
+                    total_direct_expenses,
+                    expenses_cash,
+                    expenses_qicard,
+                    total_supplier_pays,
+                    total_supplier_discounts,
+                    total_outflow,
+                    net_profit
+                });
+            });
+        });
     });
 });
 
