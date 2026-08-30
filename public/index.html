@@ -817,7 +817,7 @@
                             <span class="text-amber-500">💸</span>
                             <span>إدارة الصرفيات والتحليل المالي لصافي الأرباح</span>
                         </h2>
-                        <p class="text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">متابعة دقيقة للصرفيات التشغيلية والعامة مع تسديدات المذاخر واستخراج الصافي</p>
+                        <p class="text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">متابعة دقيقة للصرفيات العامة والتشغيلية وكشف الرواتب مع تسديدات المذاخر واستخراج الصافي</p>
                     </div>
 
                     <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -846,15 +846,16 @@
                         </div>
                     </div>
 
-                    <!-- 2. الصرفيات التشغيلية -->
+                    <!-- 2. الصرفيات التشغيلية (بما فيها الرواتب) -->
                     <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-blue-500/20 shadow-sm flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-[10px] sm:text-xs font-bold text-slate-400">صرفيات تشغيلية</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-400">صرفيات تشغيلية ورواتب</span>
                             <span class="text-blue-500 text-sm">🏭</span>
                         </div>
                         <strong id="exp-kpi-operational" class="text-xs sm:text-base lg:text-lg font-black text-blue-600 dark:text-blue-400 block truncate">0 د.ع</strong>
-                        <div class="text-[9px] sm:text-[10.5px] text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800 truncate">
-                            <span>رواتب، إيجار، كهرباء، صيانة</span>
+                        <div class="text-[9px] sm:text-[10.5px] text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                            <span>رواتب: <b id="exp-kpi-salaries" class="text-indigo-600 dark:text-indigo-400">0</b></span>
+                            <span>أخرى: <b id="exp-kpi-op-other" class="text-slate-500">0</b></span>
                         </div>
                     </div>
 
@@ -866,7 +867,7 @@
                         </div>
                         <strong id="exp-kpi-general" class="text-xs sm:text-base lg:text-lg font-black text-amber-600 dark:text-amber-400 block truncate">0 د.ع</strong>
                         <div class="text-[9px] sm:text-[10.5px] text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800 truncate">
-                            <span>ضيافة، تسويق، رسوم، سحوبات</span>
+                            <span>ضيافة، كهرباء، صيانة، نثريات</span>
                         </div>
                     </div>
 
@@ -878,7 +879,7 @@
                         </div>
                         <strong id="exp-kpi-suppliers" class="text-xs sm:text-base lg:text-lg font-black text-purple-600 dark:text-purple-400 block truncate">0 د.ع</strong>
                         <div class="text-[9px] sm:text-[10.5px] text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800 flex justify-between">
-                            <span>مشتريات وديون</span>
+                            <span>مشتريات الشهر</span>
                             <span id="exp-kpi-discounts" class="text-amber-500 font-bold">خصم: 0</span>
                         </div>
                     </div>
@@ -897,164 +898,301 @@
                     </div>
                 </div>
 
-                <!-- قسم تسجيل صرفية جديدة سريعة -->
-                <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-                        <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-1.5">
-                            <span>➕</span>
-                            <span>تسجيل صرفية جديدة</span>
-                        </h3>
-                        <span class="text-[10.5px] text-slate-400 font-bold">يتم تسجيلها وإدراجها فورياً في الحسابات</span>
-                    </div>
-
-                    <form id="expense-form" onsubmit="saveNewExpense(event)" class="space-y-3 sm:space-y-4">
-                        
-                        <!-- الصف الأول: النوع والتاريخ والتصنيف وطريقة الدفع -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                            
-                            <!-- اختيار النوع الرئيسي (تشغيلية / عامة) -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">نوع الصرفية: *</label>
-                                <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-                                    <button type="button" onclick="setExpenseType('تشغيلية')" id="exp-type-btn-op" class="py-1.5 text-xs font-black rounded-lg bg-indigo-600 text-white shadow transition-all">🏭 تشغيلية</button>
-                                    <button type="button" onclick="setExpenseType('عامة')" id="exp-type-btn-gen" class="py-1.5 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all">🏢 عامة</button>
-                                </div>
-                                <input type="hidden" id="exp-main-type" value="تشغيلية">
-                            </div>
-
-                            <!-- التاريخ -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">التاريخ: *</label>
-                                <input type="date" id="exp-date" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
-                            </div>
-
-                            <!-- التصنيف -->
-                            <div class="space-y-1">
-                                <div class="flex justify-between items-center">
-                                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">التصنيف: *</label>
-                                    <button type="button" onclick="openCategoryManagerModal()" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-black hover:underline">+ قسم جديد</button>
-                                </div>
-                                <select id="exp-category-select" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner"></select>
-                            </div>
-
-                            <!-- طريقة الدفع (كاش / كي كارد) -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">طريقة الدفع: *</label>
-                                <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-                                    <button type="button" onclick="setExpensePayMethod('كاش')" id="exp-paymethod-btn-cash" class="py-1.5 text-xs font-black rounded-lg bg-emerald-600 text-white shadow transition-all">💵 كاش</button>
-                                    <button type="button" onclick="setExpensePayMethod('كي كارد')" id="exp-paymethod-btn-qi" class="py-1.5 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-all">💳 كي كارد</button>
-                                </div>
-                                <input type="hidden" id="exp-payment-method" value="كاش">
-                            </div>
-                        </div>
-
-                        <!-- الصف الثاني: البيان الفرعي والمبلغ والمستلم والملاحظات -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                            
-                            <!-- البيان الفرعي -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">البيان الفرعي / التفصيل:</label>
-                                <input type="text" id="exp-sub-category" placeholder="مثال: راتب د. علي، صيانة السبلت..." class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
-                            </div>
-
-                            <!-- المبلغ -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">المبلغ (د.ع): *</label>
-                                <input type="number" id="exp-amount" step="any" min="1" required placeholder="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-black text-rose-600 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-inner">
-                            </div>
-
-                            <!-- المستلم / الجهة -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">المستلم / الجهة:</label>
-                                <input type="text" id="exp-recipient" placeholder="اسم الموظف أو الفني أو الجهة..." class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
-                            </div>
-
-                            <!-- الملاحظات -->
-                            <div class="space-y-1">
-                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">ملاحظات إضافية:</label>
-                                <input type="text" id="exp-notes" placeholder="ملاحظات أو رقم وصل..." class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
-                            </div>
-                        </div>
-
-                        <!-- أزرار المبالغ السريعة وزر الحفظ -->
-                        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
-                            <div class="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
-                                <span class="text-[10.5px] font-bold text-slate-400">مبالغ سريعة:</span>
-                                <button type="button" onclick="setQuickExpAmount(50000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">50 ألف</button>
-                                <button type="button" onclick="setQuickExpAmount(100000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">100 ألف</button>
-                                <button type="button" onclick="setQuickExpAmount(250000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">250 ألف</button>
-                                <button type="button" onclick="setQuickExpAmount(500000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">500 ألف</button>
-                                <button type="button" onclick="setQuickExpAmount(1000000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-indigo-600 dark:text-indigo-400 transition">1 مليون</button>
-                            </div>
-
-                            <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 active:scale-95 text-white px-6 py-2 rounded-xl sm:rounded-2xl font-black text-xs shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-1.5">
-                                <span>✓</span>
-                                <span>حفظ وتثبيت الصرفية</span>
-                            </button>
-                        </div>
-                    </form>
+                <!-- شريط التبديل الرئيسي بين: 1) الصرفيات العامة  2) الصرفيات التشغيلية والرواتب -->
+                <div class="flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="setMainExpensesSection('general')" id="main-exp-sec-btn-general" class="flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-md flex items-center justify-center gap-2 transition-all">
+                        <span>🏢</span>
+                        <span>الصرفيات العامة (كهرباء، صيانة، نثريات...)</span>
+                    </button>
+                    <button type="button" onclick="setMainExpensesSection('operational')" id="main-exp-sec-btn-operational" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-500 flex items-center justify-center gap-2 transition-all">
+                        <span>🏭</span>
+                        <span>الصرفيات التشغيلية (الرواتب والموظفين والمصاريف)</span>
+                    </button>
                 </div>
 
-                <!-- جدول وسجل الصرفيات المسجلة -->
-                <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                <!-- ==================== القسم الأول: الصرفيات العامة (General Expenses) ==================== -->
+                <div id="exp-section-general" class="space-y-4">
                     
-                    <!-- شريط أدوات الفلترة والبحث والتصدير -->
-                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
-                        <div>
-                            <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
-                                <span>📑</span>
-                                <span>سجل الصرفيات والمصاريف</span>
-                                <span id="expenses-count-badge" class="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 text-[10.5px] px-2 py-0.5 rounded-full font-bold border border-amber-200 dark:border-amber-800">0 صرفية</span>
+                    <!-- نموذج تسجيل صرفية عامة سريعة -->
+                    <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
+                            <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+                                <span>🏢</span>
+                                <span>تسجيل صرفية عامة جديدة</span>
                             </h3>
+                            <button type="button" onclick="openCategoryManagerModal()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 border border-amber-200 dark:border-amber-800">
+                                <span>+</span>
+                                <span>إضافة خيار / بند فرعي جديد</span>
+                            </button>
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                            <!-- البحث المباشر -->
-                            <input type="text" id="exp-search-input" oninput="applyExpensesFilter()" placeholder="🔍 بحث في الصرفيات أو المستلم..." class="border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-white shadow-inner flex-1 sm:w-48">
+                        <form id="general-expense-form" onsubmit="saveGeneralExpense(event)" class="space-y-3 sm:space-y-4">
+                            <input type="hidden" id="gen-exp-main-type" value="عامة">
 
-                            <!-- فلترة النوع -->
-                            <select id="exp-filter-type" onchange="applyExpensesFilter()" class="border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-bold text-slate-800 dark:text-white shadow-inner">
-                                <option value="all">كل الأنواع</option>
-                                <option value="تشغيلية">🏭 تشغيلية فقط</option>
-                                <option value="عامة">🏢 عامة فقط</option>
-                            </select>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                
+                                <!-- البند الفرعي -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">البند الفرعي: *</label>
+                                    </div>
+                                    <select id="gen-exp-category-select" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-white shadow-inner"></select>
+                                </div>
 
-                            <!-- فلترة طريقة الدفع -->
-                            <select id="exp-filter-paymethod" onchange="applyExpensesFilter()" class="border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-bold text-slate-800 dark:text-white shadow-inner">
-                                <option value="all">كاش وكي كارد</option>
-                                <option value="كاش">💵 كاش فقط</option>
-                                <option value="كي كارد">💳 كي كارد فقط</option>
-                            </select>
+                                <!-- التاريخ -->
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">التاريخ: *</label>
+                                    <input type="date" id="gen-exp-date" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-white shadow-inner">
+                                </div>
 
-                            <!-- زر تصدير Excel -->
-                            <button type="button" onclick="exportExpensesExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 shadow">
-                                <span>📊</span>
-                                <span>Excel</span>
-                            </button>
+                                <!-- المبلغ -->
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">المبلغ (د.ع): *</label>
+                                    <input type="number" id="gen-exp-amount" step="any" min="1" required placeholder="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-black text-rose-600 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-inner">
+                                </div>
+
+                                <!-- طريقة الدفع -->
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">طريقة الدفع: *</label>
+                                    <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                                        <button type="button" onclick="setGenExpensePayMethod('كاش')" id="gen-pay-btn-cash" class="py-1.5 text-xs font-black rounded-lg bg-emerald-600 text-white shadow transition-all">💵 كاش</button>
+                                        <button type="button" onclick="setGenExpensePayMethod('كي كارد')" id="gen-pay-btn-qi" class="py-1.5 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-all">💳 كي كارد</button>
+                                    </div>
+                                    <input type="hidden" id="gen-exp-paymethod" value="كاش">
+                                </div>
+                            </div>
+
+                            <!-- تفاصيل الصرف والملاحظات والجهة المستفيدة -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="sm:col-span-2 space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">الملاحظات وتفاصيل الصرف / لمن صُرف المبلغ: *</label>
+                                    <input type="text" id="gen-exp-notes" placeholder="مثال: فاتورة كهرباء المولد لشهر 8، شراء منظفات من الأسواق، تصليح قفل الباب..." required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-white shadow-inner">
+                                </div>
+
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">المستلم / الجهة (اختياري):</label>
+                                    <input type="text" id="gen-exp-recipient" placeholder="اسم صاحب المولد / الفني / المحل..." class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-white shadow-inner">
+                                </div>
+                            </div>
+
+                            <!-- أزرار المبالغ السريعة وزر الحفظ -->
+                            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+                                <div class="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
+                                    <span class="text-[10.5px] font-bold text-slate-400">مبالغ سريعة:</span>
+                                    <button type="button" onclick="setQuickGenExpAmount(25000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">25 ألف</button>
+                                    <button type="button" onclick="setQuickGenExpAmount(50000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">50 ألف</button>
+                                    <button type="button" onclick="setQuickGenExpAmount(100000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">100 ألف</button>
+                                    <button type="button" onclick="setQuickGenExpAmount(250000)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-1 rounded-lg text-[10.5px] font-black text-slate-700 dark:text-slate-300 transition">250 ألف</button>
+                                </div>
+
+                                <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 active:scale-95 text-white px-6 py-2.5 rounded-xl sm:rounded-2xl font-black text-xs shadow-lg shadow-amber-600/30 transition-all flex items-center justify-center gap-1.5">
+                                    <span>✓</span>
+                                    <span>حفظ وتثبيت الصرفية العامة</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- سجل وجدول الصرفيات العامة -->
+                    <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+                                <span>📑</span>
+                                <span>سجل الصرفيات العامة لشهر (<span id="gen-exp-month-label"></span>)</span>
+                                <span id="gen-expenses-count" class="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 text-[10.5px] px-2 py-0.5 rounded-full font-bold border border-amber-200 dark:border-amber-800">0 صرفية</span>
+                            </h3>
+
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <input type="text" id="gen-exp-search" oninput="filterGeneralExpensesTable()" placeholder="🔍 بحث في البند أو الملاحظات..." class="border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-white shadow-inner flex-1 sm:w-48">
+                                <button type="button" onclick="exportExpensesExcel('عامة')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 shadow">
+                                    <span>📊</span>
+                                    <span>Excel</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl max-h-[50vh]">
+                            <table class="w-full text-right border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+                                        <th class="p-2.5 sm:p-3.5">التاريخ</th>
+                                        <th class="p-2.5 sm:p-3.5">البند الفرعي</th>
+                                        <th class="p-2.5 sm:p-3.5 text-rose-600">المبلغ</th>
+                                        <th class="p-2.5 sm:p-3.5">طريقة الدفع</th>
+                                        <th class="p-2.5 sm:p-3.5">تفاصيل الصرف / المستفيد</th>
+                                        <th class="p-2.5 sm:p-3.5 text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gen-expenses-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tr>
+                                        <td colspan="6" class="p-6 text-center text-slate-400 font-bold">جاري تحميل الصرفيات العامة...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== القسم الثاني: الصرفيات التشغيلية والرواتب (Operational & Payroll) ==================== -->
+                <div id="exp-section-operational" class="hidden space-y-4">
+                    
+                    <!-- أزرار التنقل الفرعي: 1) كشف الرواتب  2) مصاريف تشغيلية أخرى -->
+                    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                        <button type="button" onclick="setOpSubTab('salaries')" id="op-subtab-btn-salaries" class="py-2 px-4 rounded-xl font-black text-xs sm:text-sm bg-indigo-600 text-white shadow flex items-center gap-1.5 transition-all">
+                            <span>👥</span>
+                            <span>كشف ورواتب الموظفين (Payroll)</span>
+                        </button>
+                        <button type="button" onclick="setOpSubTab('other')" id="op-subtab-btn-other" class="py-2 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-500 flex items-center gap-1.5 transition-all">
+                            <span>🏭</span>
+                            <span>مصاريف تشغيلية أخرى (إيجار، صيانة، تجهيزات...)</span>
+                        </button>
+                    </div>
+
+                    <!-- 1. تبويب كشف ورواتب الموظفين -->
+                    <div id="op-subtab-salaries-content" class="space-y-4">
+                        
+                        <!-- بطاقة معلومات الرواتب وزر إدارة الموظفين -->
+                        <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                                <div>
+                                    <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                                        <span>👥</span>
+                                        <span>كشف رواتب كوادر الصيدلية لشهر (<span id="salaries-month-label"></span>)</span>
+                                    </h3>
+                                    <p class="text-[10.5px] sm:text-xs text-slate-400 font-medium">متابعة الرواتب المرجعية والخصومات والمبالغ الفعلية المستلمة مع طباعة وصل الاستلام</p>
+                                </div>
+
+                                <button type="button" onclick="openEmployeeManagerModal()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl text-xs font-black shadow-md transition flex items-center gap-1.5 flex-shrink-0">
+                                    <span>⚙️</span>
+                                    <span>إدارة كادر الصيدلية والموظفين</span>
+                                </button>
+                            </div>
+
+                            <!-- كروت إجماليات الرواتب -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                    <span class="text-[10.5px] font-bold text-slate-400 block">إجمالي الرواتب المرجعية</span>
+                                    <strong id="sal-total-base" class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100">0 د.ع</strong>
+                                </div>
+                                <div class="bg-rose-50 dark:bg-rose-950/40 p-3 rounded-2xl border border-rose-200 dark:border-rose-900">
+                                    <span class="text-[10.5px] font-bold text-rose-500 block">إجمالي الخصومات المسجلة</span>
+                                    <strong id="sal-total-deductions" class="text-sm sm:text-base font-black text-rose-600 dark:text-rose-400">0 د.ع</strong>
+                                </div>
+                                <div class="bg-emerald-50 dark:bg-emerald-950/40 p-3 rounded-2xl border border-emerald-200 dark:border-emerald-900">
+                                    <span class="text-[10.5px] font-bold text-emerald-500 block">إجمالي الرواتب المصروفة فعلياً</span>
+                                    <strong id="sal-total-paid" class="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">0 د.ع</strong>
+                                </div>
+                            </div>
+
+                            <!-- جدول الرواتب التفاعلي -->
+                            <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl">
+                                <table class="w-full text-right border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700">
+                                            <th class="p-2.5 sm:p-3">الموظف / الدور</th>
+                                            <th class="p-2.5 sm:p-3">الراتب المرجعي الأساسي</th>
+                                            <th class="p-2.5 sm:p-3 text-rose-600">الخصم (د.ع)</th>
+                                            <th class="p-2.5 sm:p-3">سبب الخصم</th>
+                                            <th class="p-2.5 sm:p-3 text-emerald-600">المبلغ الفعلي المستلم</th>
+                                            <th class="p-2.5 sm:p-3">طريقة الدفع</th>
+                                            <th class="p-2.5 sm:p-3">حالة الصرف</th>
+                                            <th class="p-2.5 sm:p-3 text-center">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salaries-table-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                        <tr>
+                                            <td colspan="8" class="p-6 text-center text-slate-400 font-bold">جاري تحميل جدول الرواتب...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- جدول الصرفيات -->
-                    <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl max-h-[60vh]">
-                        <table class="w-full text-right border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
-                                    <th class="p-2.5 sm:p-3.5">التاريخ</th>
-                                    <th class="p-2.5 sm:p-3.5">النوع</th>
-                                    <th class="p-2.5 sm:p-3.5">التصنيف والبيان</th>
-                                    <th class="p-2.5 sm:p-3.5 text-rose-600">المبلغ</th>
-                                    <th class="p-2.5 sm:p-3.5">طريقة الدفع</th>
-                                    <th class="p-2.5 sm:p-3.5">المستلم</th>
-                                    <th class="p-2.5 sm:p-3.5">الملاحظات</th>
-                                    <th class="p-2.5 sm:p-3.5 text-center">الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expenses-table-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
-                                <tr>
-                                    <td colspan="8" class="p-6 text-center text-slate-400 font-bold">جاري تحميل الصرفيات...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- 2. تبويب مصاريف تشغيلية أخرى -->
+                    <div id="op-subtab-other-content" class="hidden space-y-4">
+                        
+                        <!-- نموذج إضافة مصروف تشغيلي آخر -->
+                        <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                                <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                                    <span>🏭</span>
+                                    <span>تسجيل مصاريف تشغيلية أخرى (إيجار، تجهيزات، صيانة صيدلية...)</span>
+                                </h3>
+                            </div>
+
+                            <form id="op-other-form" onsubmit="saveOpOtherExpense(event)" class="space-y-3 sm:space-y-4">
+                                <input type="hidden" id="op-other-main-type" value="تشغيلية">
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">التصنيف: *</label>
+                                        <select id="op-other-category-select" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white shadow-inner"></select>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">التاريخ: *</label>
+                                        <input type="date" id="op-other-date" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white shadow-inner">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">المبلغ (د.ع): *</label>
+                                        <input type="number" id="op-other-amount" step="any" min="1" required placeholder="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-black text-rose-600 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-inner">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">طريقة الدفع: *</label>
+                                        <select id="op-other-paymethod" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white shadow-inner">
+                                            <option value="كاش">💵 كاش</option>
+                                            <option value="كي كارد">💳 كي كارد</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">البيان / التفصيل: *</label>
+                                        <input type="text" id="op-other-subcat" placeholder="مثال: إيجار شهر 8، صيانة جهاز التكييف..." required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white shadow-inner">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">المستلم / الملاحظات:</label>
+                                        <input type="text" id="op-other-notes" placeholder="اسم المستلم أو رقم الوصل..." class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white shadow-inner">
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end pt-2">
+                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-6 py-2.5 rounded-xl font-black text-xs shadow-md transition-all flex items-center gap-1.5">
+                                        <span>✓</span>
+                                        <span>حفظ المصروف التشغيلي</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- جدول المصاريف التشغيلية الأخرى -->
+                        <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                            <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+                                <span>📑</span>
+                                <span>سجل المصاريف التشغيلية (غير الرواتب)</span>
+                            </h3>
+
+                            <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl max-h-[50vh]">
+                                <table class="w-full text-right border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700">
+                                            <th class="p-2.5 sm:p-3">التاريخ</th>
+                                            <th class="p-2.5 sm:p-3">التصنيف والبيان</th>
+                                            <th class="p-2.5 sm:p-3 text-rose-600">المبلغ</th>
+                                            <th class="p-2.5 sm:p-3">طريقة الدفع</th>
+                                            <th class="p-2.5 sm:p-3">المستلم / الملاحظات</th>
+                                            <th class="p-2.5 sm:p-3 text-center">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="op-other-expenses-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                        <tr>
+                                            <td colspan="6" class="p-6 text-center text-slate-400 font-bold">جاري تحميل المصاريف التشغيلية...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1656,6 +1794,160 @@
         </div>
     </div>
 
+    <!-- مودال إدارة كادر الصيدلية والموظفين والرواتب المرجعية (Manage Employees Modal) -->
+    <div id="manage-employees-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-5 sm:p-6 rounded-3xl w-full max-w-xl shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="font-black text-base text-slate-900 dark:text-white flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                    <span>👥</span>
+                    <span>إدارة كادر الصيدلية والرواتب المرجعية الأساسية</span>
+                </h3>
+                <button type="button" onclick="closeModal('manage-employees-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-black">✕</button>
+            </div>
+
+            <!-- نموذج إضافة موظف جديد -->
+            <form onsubmit="saveNewEmployee(event)" class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                <div class="text-xs font-black text-indigo-600 dark:text-indigo-400">+ إضافة موظف / كادر جديد</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-slate-400 mb-1">الاسم الكامل: *</label>
+                        <input type="text" id="new-emp-name" placeholder="مثال: د. أحمد، سجاد..." required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-white dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-slate-400 mb-1">المسمى الوظيفي / الدور:</label>
+                        <select id="new-emp-role" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-2 text-xs bg-white dark:bg-slate-800 font-bold">
+                            <option value="صيدلي ممارس">دكتور صيدلي ممارس</option>
+                            <option value="صيدلي متدرب">صيدلي متدرب</option>
+                            <option value="مساعد صيدلي">مساعد صيدلي</option>
+                            <option value="محاسب وكاشير">محاسب وكاشير</option>
+                            <option value="خدمات ونظافة">خدمات ونظافة</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-slate-400 mb-1">الراتب المرجعي الأساسي (د.ع): *</label>
+                        <input type="number" id="new-emp-salary" step="any" min="0" required placeholder="مثال: 1000000" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-white dark:bg-slate-800 font-black text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-slate-400 mb-1">رقم الهاتف:</label>
+                        <input type="text" id="new-emp-phone" placeholder="07XXXXXXXXX" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs bg-white dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-black transition shadow">إضافة الموظف ✓</button>
+                </div>
+            </form>
+
+            <!-- قائمة الموظفين المسجلين -->
+            <div class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs">
+                <div class="font-black text-xs text-slate-600 dark:text-slate-300 mb-1">كادر الصيدلية الحالي:</div>
+                <div id="employees-manager-list" class="space-y-2"></div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="closeModal('manage-employees-modal')" class="px-5 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-black text-xs">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تعديل موظف (Edit Employee Modal) -->
+    <div id="edit-employee-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-5 sm:p-6 rounded-3xl w-full max-w-md shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <h3 class="font-black text-base border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <span>✏️</span>
+                <span>تعديل بيانات الموظف والراتب الأساسي</span>
+            </h3>
+            <form onsubmit="saveEditedEmployee(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="edit-emp-id">
+                
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">اسم الموظف: *</label>
+                    <input type="text" id="edit-emp-name" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">المسمى الوظيفي:</label>
+                    <input type="text" id="edit-emp-role" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">الراتب المرجعي الأساسي (د.ع): *</label>
+                    <input type="number" id="edit-emp-salary" step="any" min="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-800 font-black text-indigo-600">
+                </div>
+
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">رقم الهاتف:</label>
+                    <input type="text" id="edit-emp-phone" class="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeModal('edit-employee-modal')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black shadow">حفظ التعديل ✓</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- سند استلام راتب رسمي قابل للطباعة (Printable Salary Voucher) -->
+    <div id="printable-salary-voucher" class="hidden bg-white text-slate-900 p-8 max-w-xl mx-auto space-y-5 border border-slate-300 rounded-2xl">
+        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-3">
+            <div>
+                <h2 class="text-2xl font-black">صيدلية أوروك 🏥</h2>
+                <p class="text-xs text-slate-600 font-bold">سند صرف واستلام راتب شهري</p>
+            </div>
+            <div class="text-left text-xs space-y-0.5">
+                <p>شهر الاستحقاق: <b id="sal-voucher-month"></b></p>
+                <p>تاريخ الصرف: <b id="sal-voucher-date"></b></p>
+            </div>
+        </div>
+
+        <div class="space-y-2.5 text-sm py-2">
+            <div class="flex justify-between border-b border-slate-200 pb-1.5">
+                <span class="text-slate-500">اسم الموظف / الكادر:</span>
+                <strong id="sal-voucher-emp-name" class="text-slate-900 font-black text-base">-</strong>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-1.5">
+                <span class="text-slate-500">المسمى الوظيفي:</span>
+                <span id="sal-voucher-emp-role" class="text-slate-700 font-bold">-</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-1.5">
+                <span class="text-slate-500">الراتب المرجعي الأساسي:</span>
+                <strong id="sal-voucher-base-salary" class="text-slate-900 font-black">0 د.ع</strong>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-1.5">
+                <span class="text-slate-500">مبلغ الخصم:</span>
+                <strong id="sal-voucher-deduction" class="text-rose-600 font-bold">0 د.ع</strong>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-1.5">
+                <span class="text-slate-500">سبب الخصم:</span>
+                <span id="sal-voucher-deduction-reason" class="text-slate-700">-</span>
+            </div>
+            <div class="flex justify-between border-b-2 border-slate-800 py-2 bg-slate-50 px-2 rounded-lg">
+                <span class="text-slate-700 font-black text-base">المبلغ الفعلي المستلم (صافي الراتب):</span>
+                <strong id="sal-voucher-paid-amount" class="text-emerald-700 font-black text-xl">0 د.ع</strong>
+            </div>
+            <div class="flex justify-between border-b border-slate-200 pb-1.5">
+                <span class="text-slate-500">طريقة الاستلام:</span>
+                <strong id="sal-voucher-paymethod" class="text-slate-900 font-bold">كاش</strong>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 pt-6 text-center text-xs">
+            <div class="space-y-8">
+                <span class="block text-slate-500 font-bold">توقيع المستلم بما يفيد القبض</span>
+                <div class="border-b border-slate-400 w-3/4 mx-auto"></div>
+            </div>
+            <div class="space-y-8">
+                <span class="block text-slate-500 font-bold">إدارة الصيدلية (د. همام 🩺)</span>
+                <div class="border-b border-slate-400 w-3/4 mx-auto"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== المنطق البرمجي (JavaScript) ==================== -->
     <script>
         let suppliersCache = [];
@@ -1670,11 +1962,14 @@
         let trendChartInstance = null;
         let donutChartInstance = null;
 
-        // حالة وبيانات قسم الصرفيات
+        // حالة وبيانات قسم الصرفيات وكادر الموظفين والرواتب
         let expenseCategoriesCache = [];
         let expensesCache = [];
-        let selectedExpenseMainType = 'تشغيلية';
-        let selectedExpensePayMethod = 'كاش';
+        let employeesCache = [];
+        let salaryPaymentsCache = [];
+        let selectedMainExpSec = 'general';
+        let selectedOpSubTab = 'salaries';
+        let selectedGenPayMethod = 'كاش';
 
         const daysNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
@@ -1727,14 +2022,18 @@
             document.getElementById('main-plan-month').value = currentMonth;
             document.getElementById('pdf-report-date').innerText = today;
             
-            const expDateInput = document.getElementById('exp-date');
-            if (expDateInput) expDateInput.value = today;
+            const genDateInput = document.getElementById('gen-exp-date');
+            if (genDateInput) genDateInput.value = today;
+            const opOtherDateInput = document.getElementById('op-other-date');
+            if (opOtherDateInput) opOtherDateInput.value = today;
+
             const expMonthInput = document.getElementById('expenses-filter-month');
             if (expMonthInput) expMonthInput.value = currentMonth;
 
             setViewMode(currentViewMode, false);
             await loadIncomeFromDatabase();
             await loadExpenseCategories();
+            await loadEmployees();
             await loadSuppliers();
         });
 
@@ -1970,29 +2269,53 @@
             }
         }
 
-        // ==================== منطق ودوال قسم الصرفيات والمصاريف ====================
+        // ==================== منطق ودوال قسم الصرفيات والرواتب والتحليل المالي ====================
 
-        function setExpenseType(type) {
-            selectedExpenseMainType = type;
-            document.getElementById('exp-main-type').value = type;
-            const opBtn = document.getElementById('exp-type-btn-op');
-            const genBtn = document.getElementById('exp-type-btn-gen');
+        function setMainExpensesSection(sec) {
+            selectedMainExpSec = sec;
+            const genSec = document.getElementById('exp-section-general');
+            const opSec = document.getElementById('exp-section-operational');
+            const genBtn = document.getElementById('main-exp-sec-btn-general');
+            const opBtn = document.getElementById('main-exp-sec-btn-operational');
 
-            if (type === 'تشغيلية') {
-                opBtn.className = "py-1.5 text-xs font-black rounded-lg bg-indigo-600 text-white shadow transition-all";
-                genBtn.className = "py-1.5 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all";
+            if (sec === 'general') {
+                genSec.classList.remove('hidden');
+                opSec.classList.add('hidden');
+                genBtn.className = "flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-md flex items-center justify-center gap-2 transition-all";
+                opBtn.className = "flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-500 flex items-center justify-center gap-2 transition-all";
             } else {
-                genBtn.className = "py-1.5 text-xs font-black rounded-lg bg-amber-600 text-white shadow transition-all";
-                opBtn.className = "py-1.5 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all";
+                opSec.classList.remove('hidden');
+                genSec.classList.add('hidden');
+                opBtn.className = "flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-md flex items-center justify-center gap-2 transition-all";
+                genBtn.className = "flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:text-amber-500 flex items-center justify-center gap-2 transition-all";
             }
-            updateCategoryDropdown(type);
         }
 
-        function setExpensePayMethod(method) {
-            selectedExpensePayMethod = method;
-            document.getElementById('exp-payment-method').value = method;
-            const cashBtn = document.getElementById('exp-paymethod-btn-cash');
-            const qiBtn = document.getElementById('exp-paymethod-btn-qi');
+        function setOpSubTab(sub) {
+            selectedOpSubTab = sub;
+            const salContent = document.getElementById('op-subtab-salaries-content');
+            const otherContent = document.getElementById('op-subtab-other-content');
+            const salBtn = document.getElementById('op-subtab-btn-salaries');
+            const otherBtn = document.getElementById('op-subtab-btn-other');
+
+            if (sub === 'salaries') {
+                salContent.classList.remove('hidden');
+                otherContent.classList.add('hidden');
+                salBtn.className = "py-2 px-4 rounded-xl font-black text-xs sm:text-sm bg-indigo-600 text-white shadow flex items-center gap-1.5 transition-all";
+                otherBtn.className = "py-2 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-500 flex items-center gap-1.5 transition-all";
+            } else {
+                otherContent.classList.remove('hidden');
+                salContent.classList.add('hidden');
+                otherBtn.className = "py-2 px-4 rounded-xl font-black text-xs sm:text-sm bg-blue-600 text-white shadow flex items-center gap-1.5 transition-all";
+                salBtn.className = "py-2 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-500 flex items-center gap-1.5 transition-all";
+            }
+        }
+
+        function setGenExpensePayMethod(method) {
+            selectedGenPayMethod = method;
+            document.getElementById('gen-exp-paymethod').value = method;
+            const cashBtn = document.getElementById('gen-pay-btn-cash');
+            const qiBtn = document.getElementById('gen-pay-btn-qi');
 
             if (method === 'كاش') {
                 cashBtn.className = "py-1.5 text-xs font-black rounded-lg bg-emerald-600 text-white shadow transition-all";
@@ -2003,8 +2326,8 @@
             }
         }
 
-        function setQuickExpAmount(amt) {
-            document.getElementById('exp-amount').value = amt;
+        function setQuickGenExpAmount(amt) {
+            document.getElementById('gen-exp-amount').value = amt;
         }
 
         async function loadExpenseCategories() {
@@ -2012,21 +2335,37 @@
                 const res = await fetch('/api/expense-categories');
                 if (res.ok) {
                     expenseCategoriesCache = await res.json();
-                    updateCategoryDropdown(selectedExpenseMainType);
+                    updateCategoryDropdowns();
                 }
             } catch (err) {
                 console.error('Error loading expense categories:', err);
             }
         }
 
-        function updateCategoryDropdown(mainType) {
-            const select = document.getElementById('exp-category-select');
-            if (!select) return;
-            select.innerHTML = '';
-            const filtered = expenseCategoriesCache.filter(c => c.main_type === mainType);
-            filtered.forEach(c => {
-                select.innerHTML += `<option value="${c.name}">${c.name}</option>`;
-            });
+        function updateCategoryDropdowns() {
+            const genSelect = document.getElementById('gen-exp-category-select');
+            const opSelect = document.getElementById('op-other-category-select');
+            const editSelect = document.getElementById('edit-exp-category');
+
+            if (genSelect) {
+                genSelect.innerHTML = '';
+                const genCats = expenseCategoriesCache.filter(c => c.main_type === 'عامة');
+                genCats.forEach(c => {
+                    genSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+                });
+            }
+
+            if (opSelect) {
+                opSelect.innerHTML = '';
+                const opCats = expenseCategoriesCache.filter(c => c.main_type === 'تشغيلية');
+                opCats.forEach(c => {
+                    opSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+                });
+            }
+
+            if (editSelect) {
+                updateEditCategoryDropdown();
+            }
         }
 
         function updateEditCategoryDropdown() {
@@ -2040,8 +2379,420 @@
             });
         }
 
+        // --- إدارة الموظفين ---
+
+        async function loadEmployees() {
+            try {
+                const res = await fetch('/api/employees');
+                if (res.ok) {
+                    employeesCache = await res.json();
+                    renderEmployeesManagerList();
+                    renderSalariesTable();
+                }
+            } catch (err) {
+                console.error('Error loading employees:', err);
+            }
+        }
+
+        function openEmployeeManagerModal() {
+            renderEmployeesManagerList();
+            document.getElementById('manage-employees-modal').classList.remove('hidden');
+        }
+
+        function renderEmployeesManagerList() {
+            const listEl = document.getElementById('employees-manager-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            if (employeesCache.length === 0) {
+                listEl.innerHTML = '<p class="text-center text-slate-400 py-3">لا يوجد موظفون مسجلون</p>';
+                return;
+            }
+
+            employeesCache.forEach(emp => {
+                listEl.innerHTML += `
+                    <div class="flex justify-between items-center p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
+                        <div>
+                            <span class="font-black text-slate-900 dark:text-white text-xs block">${emp.name}</span>
+                            <span class="text-[11px] text-slate-400 block">${emp.role || 'صيدلي'} | الراتب المرجعي: <b class="text-indigo-600 dark:text-indigo-400">${Number(emp.base_salary || 0).toLocaleString()} د.ع</b> ${emp.phone ? `| 📞 ${emp.phone}` : ''}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <button onclick="openEditEmployeeModal(${emp.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 px-2.5 py-1 text-xs font-bold rounded-lg transition">تعديل</button>
+                            <button onclick="deleteEmployee(${emp.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300 px-2.5 py-1 text-xs font-bold rounded-lg transition">حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function saveNewEmployee(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-emp-name').value.trim();
+            const role = document.getElementById('new-emp-role').value;
+            const base_salary = parseFloat(document.getElementById('new-emp-salary').value || 0);
+            const phone = document.getElementById('new-emp-phone').value.trim();
+
+            if (!name) return;
+
+            try {
+                const res = await fetch('/api/employees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, role, base_salary, phone })
+                });
+
+                if (res.ok) {
+                    document.getElementById('new-emp-name').value = '';
+                    document.getElementById('new-emp-salary').value = '';
+                    document.getElementById('new-emp-phone').value = '';
+                    showToast(`✅ تم إضافة الموظف (${name}) بنجاح`);
+                    await loadEmployees();
+                    await loadExpensesDashboard();
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'خطأ في إضافة الموظف', 'error');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        function openEditEmployeeModal(id) {
+            const emp = employeesCache.find(x => x.id == id);
+            if (!emp) return;
+            document.getElementById('edit-emp-id').value = emp.id;
+            document.getElementById('edit-emp-name').value = emp.name;
+            document.getElementById('edit-emp-role').value = emp.role || 'صيدلي ممارس';
+            document.getElementById('edit-emp-salary').value = emp.base_salary || 0;
+            document.getElementById('edit-emp-phone').value = emp.phone || '';
+            document.getElementById('edit-employee-modal').classList.remove('hidden');
+        }
+
+        async function saveEditedEmployee(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-emp-id').value;
+            const name = document.getElementById('edit-emp-name').value.trim();
+            const role = document.getElementById('edit-emp-role').value;
+            const base_salary = parseFloat(document.getElementById('edit-emp-salary').value || 0);
+            const phone = document.getElementById('edit-emp-phone').value.trim();
+
+            try {
+                const res = await fetch(`/api/employees/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, role, base_salary, phone })
+                });
+
+                if (res.ok) {
+                    closeModal('edit-employee-modal');
+                    showToast('✅ تم تعديل بيانات الموظف بنجاح');
+                    await loadEmployees();
+                    await loadExpensesDashboard();
+                }
+            } catch (err) {
+                showToast('خطأ في تعديل الموظف', 'error');
+            }
+        }
+
+        async function deleteEmployee(id) {
+            const emp = employeesCache.find(x => x.id == id);
+            if (!confirm(`هل أنت متأكد من حذف الموظف (${emp ? emp.name : id}) نهائياً؟`)) return;
+
+            try {
+                const res = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('تم حذف الموظف بنجاح');
+                    await loadEmployees();
+                    await loadExpensesDashboard();
+                }
+            } catch (err) {
+                showToast('خطأ في حذف الموظف', 'error');
+            }
+        }
+
+        // --- كشف ورواتب الموظفين (Payroll Engine) ---
+
+        async function loadSalaryPayments() {
+            const month = document.getElementById('expenses-filter-month').value || new Date().toISOString().slice(0, 7);
+            try {
+                const res = await fetch(`/api/salary-payments?month=${month}`);
+                if (res.ok) {
+                    salaryPaymentsCache = await res.json();
+                    renderSalariesTable();
+                }
+            } catch (err) {
+                console.error('Error loading salary payments:', err);
+            }
+        }
+
+        function renderSalariesTable() {
+            const tbody = document.getElementById('salaries-table-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const currentMonth = document.getElementById('expenses-filter-month').value || new Date().toISOString().slice(0, 7);
+            const monthLabel = document.getElementById('salaries-month-label');
+            if (monthLabel) monthLabel.innerText = currentMonth;
+
+            if (employeesCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 font-bold">لا يوجد موظفون مسجلون. اضغط على زر (إدارة كادر الصيدلية) لإضافة موظفين.</td></tr>`;
+                return;
+            }
+
+            let totalBase = 0;
+            let totalDeductions = 0;
+            let totalPaid = 0;
+
+            employeesCache.forEach(emp => {
+                const baseSalary = Number(emp.base_salary || 0);
+                totalBase += baseSalary;
+
+                const payment = salaryPaymentsCache.find(p => p.employee_id == emp.id);
+                const isPaid = !!payment;
+
+                if (isPaid) {
+                    const deduction = Number(payment.deduction_amount || 0);
+                    const paidAmt = Number(payment.paid_amount || 0);
+                    totalDeductions += deduction;
+                    totalPaid += paidAmt;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition bg-emerald-50/20 dark:bg-emerald-950/10">
+                            <td class="p-2.5 sm:p-3.5">
+                                <span class="font-black text-slate-900 dark:text-white block text-xs sm:text-sm">${emp.name}</span>
+                                <span class="text-[10.5px] text-slate-400 block">${emp.role || 'صيدلي'} ${emp.phone ? `| 📞 ${emp.phone}` : ''}</span>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5 font-bold text-slate-700 dark:text-slate-300">${baseSalary.toLocaleString()} د.ع</td>
+                            <td class="p-2.5 sm:p-3.5 font-black text-rose-600 dark:text-rose-400">${deduction > 0 ? deduction.toLocaleString() + ' د.ع' : '-'}</td>
+                            <td class="p-2.5 sm:p-3.5 text-slate-500 font-medium text-[11px]">${payment.deduction_reason || '-'}</td>
+                            <td class="p-2.5 sm:p-3.5 font-black text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">${paidAmt.toLocaleString()} د.ع</td>
+                            <td class="p-2.5 sm:p-3.5 font-bold text-slate-700 dark:text-slate-300">
+                                <span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg text-[10.5px]">${payment.payment_method || 'كاش'}</span>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5">
+                                <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 w-max">
+                                    <span>✓</span>
+                                    <span>تم الصرف (${payment.payment_date})</span>
+                                </span>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5 text-center flex justify-center gap-1.5 flex-wrap">
+                                <button onclick="printSalaryVoucher(${emp.id}, ${payment.id})" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1" title="طباعة وصل استلام الراتب">
+                                    <span>🧾</span>
+                                    <span>وصل</span>
+                                </button>
+                                <button onclick="cancelSalaryPayment(${payment.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300 px-2 py-1 rounded-xl text-xs font-bold transition" title="إلغاء الصرف">✕</button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                            <td class="p-2.5 sm:p-3.5">
+                                <span class="font-black text-slate-900 dark:text-white block text-xs sm:text-sm">${emp.name}</span>
+                                <span class="text-[10.5px] text-slate-400 block">${emp.role || 'صيدلي'} ${emp.phone ? `| 📞 ${emp.phone}` : ''}</span>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5 font-bold text-slate-700 dark:text-slate-300">${baseSalary.toLocaleString()} د.ع</td>
+                            <td class="p-2.5 sm:p-3.5">
+                                <input type="number" id="sal-deduct-${emp.id}" oninput="onSalaryDeductionChange(${emp.id})" placeholder="0" min="0" max="${baseSalary}" class="w-24 border border-slate-200 dark:border-slate-700 rounded-xl p-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-bold text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </td>
+                            <td class="p-2.5 sm:p-3.5">
+                                <input type="text" id="sal-reason-${emp.id}" placeholder="سبب الخصم إن وجد..." class="w-32 sm:w-40 border border-slate-200 dark:border-slate-700 rounded-xl p-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </td>
+                            <td class="p-2.5 sm:p-3.5">
+                                <strong id="sal-net-${emp.id}" class="text-emerald-600 dark:text-emerald-400 font-black text-sm block">${baseSalary.toLocaleString()} د.ع</strong>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5">
+                                <select id="sal-paymethod-${emp.id}" class="border border-slate-200 dark:border-slate-700 rounded-xl p-1.5 text-xs bg-slate-50 dark:bg-slate-800 font-bold">
+                                    <option value="كاش">💵 كاش</option>
+                                    <option value="كي كارد">💳 كي كارد</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5">
+                                <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full text-[10px] font-bold">بانتظار الصرف ⏳</span>
+                            </td>
+                            <td class="p-2.5 sm:p-3.5 text-center">
+                                <button onclick="disburseSalary(${emp.id})" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white px-3.5 py-1.5 rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-1 mx-auto">
+                                    <span>💵</span>
+                                    <span>صرف وتثبيت</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            document.getElementById('sal-total-base').innerText = `${totalBase.toLocaleString()} د.ع`;
+            document.getElementById('sal-total-deductions').innerText = `${totalDeductions.toLocaleString()} د.ع`;
+            document.getElementById('sal-total-paid').innerText = `${totalPaid.toLocaleString()} د.ع`;
+        }
+
+        function onSalaryDeductionChange(empId) {
+            const emp = employeesCache.find(x => x.id == empId);
+            if (!emp) return;
+            const base = Number(emp.base_salary || 0);
+            const deductInput = document.getElementById(`sal-deduct-${empId}`);
+            const deduction = parseFloat(deductInput ? deductInput.value : 0) || 0;
+            const net = Math.max(0, base - deduction);
+            const netEl = document.getElementById(`sal-net-${empId}`);
+            if (netEl) netEl.innerText = `${net.toLocaleString()} د.ع`;
+        }
+
+        async function disburseSalary(empId) {
+            const emp = employeesCache.find(x => x.id == empId);
+            if (!emp) return;
+
+            const month = document.getElementById('expenses-filter-month').value || new Date().toISOString().slice(0, 7);
+            const today = new Date().toISOString().split('T')[0];
+            const baseSalary = Number(emp.base_salary || 0);
+            const deductInput = document.getElementById(`sal-deduct-${empId}`);
+            const deduction = parseFloat(deductInput ? deductInput.value : 0) || 0;
+            const reasonInput = document.getElementById(`sal-reason-${empId}`);
+            const reason = reasonInput ? reasonInput.value.trim() : '';
+            const payMethodSelect = document.getElementById(`sal-paymethod-${empId}`);
+            const paymentMethod = payMethodSelect ? payMethodSelect.value : 'كاش';
+            const paidAmount = Math.max(0, baseSalary - deduction);
+
+            try {
+                const res = await fetch('/api/salary-payments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employee_id: empId,
+                        month: month,
+                        payment_date: today,
+                        base_salary: baseSalary,
+                        deduction_amount: deduction,
+                        deduction_reason: reason,
+                        paid_amount: paidAmount,
+                        payment_method: paymentMethod,
+                        notes: `راتب شهر ${month}`
+                    })
+                });
+
+                if (res.ok) {
+                    showToast(`✅ تم صرف راتب (${emp.name}) بمبلغ ${paidAmount.toLocaleString()} د.ع بنجاح`);
+                    await loadExpensesDashboard();
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'خطأ في صرف الراتب', 'error');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        async function cancelSalaryPayment(payId) {
+            if (!confirm('هل أنت متأكد من إلغاء صرف هذا الراتب وإعادته لحالة غير مصروف؟')) return;
+            try {
+                const res = await fetch(`/api/salary-payments/${payId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('تم إلغاء صرف الراتب بنجاح');
+                    await loadExpensesDashboard();
+                }
+            } catch (err) {
+                showToast('خطأ في إلغاء صرف الراتب', 'error');
+            }
+        }
+
+        function printSalaryVoucher(empId, payId) {
+            const emp = employeesCache.find(x => x.id == empId);
+            const pay = salaryPaymentsCache.find(p => p.id == payId) || {};
+            if (!emp) return;
+
+            document.getElementById('sal-voucher-month').innerText = pay.month || document.getElementById('expenses-filter-month').value;
+            document.getElementById('sal-voucher-date').innerText = pay.payment_date || new Date().toISOString().split('T')[0];
+            document.getElementById('sal-voucher-emp-name').innerText = emp.name;
+            document.getElementById('sal-voucher-emp-role').innerText = emp.role || 'صيدلي ممارس';
+            document.getElementById('sal-voucher-base-salary').innerText = `${Number(pay.base_salary || emp.base_salary || 0).toLocaleString()} د.ع`;
+            document.getElementById('sal-voucher-deduction').innerText = `${Number(pay.deduction_amount || 0).toLocaleString()} د.ع`;
+            document.getElementById('sal-voucher-deduction-reason').innerText = pay.deduction_reason || '-';
+            document.getElementById('sal-voucher-paid-amount').innerText = `${Number(pay.paid_amount || 0).toLocaleString()} د.ع`;
+            document.getElementById('sal-voucher-paymethod').innerText = pay.payment_method || 'كاش';
+
+            const voucher = document.getElementById('printable-salary-voucher');
+            voucher.classList.remove('hidden');
+            window.print();
+            setTimeout(() => voucher.classList.add('hidden'), 1000);
+        }
+
+        // --- الصرفيات العامة والتشغيلية الأخرى ---
+
+        async function saveGeneralExpense(e) {
+            e.preventDefault();
+            const date = document.getElementById('gen-exp-date').value;
+            const main_type = 'عامة';
+            const category_name = document.getElementById('gen-exp-category-select').value;
+            const amount = parseFloat(document.getElementById('gen-exp-amount').value || 0);
+            const payment_method = document.getElementById('gen-exp-paymethod').value;
+            const notes = document.getElementById('gen-exp-notes').value.trim();
+            const recipient = document.getElementById('gen-exp-recipient').value.trim();
+
+            if (!date || !category_name || amount <= 0 || !notes) {
+                showToast('الرجاء إدخال البند وتاريخ الصرف والمبلغ والملاحظات', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/expenses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, main_type, category_name, sub_category: '', amount, payment_method, recipient, notes })
+                });
+
+                if (res.ok) {
+                    document.getElementById('gen-exp-amount').value = '';
+                    document.getElementById('gen-exp-notes').value = '';
+                    document.getElementById('gen-exp-recipient').value = '';
+                    showToast(`✅ تم حفظ الصرفية العامة: ${amount.toLocaleString()} د.ع`);
+                    await loadExpensesDashboard();
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'خطأ في حفظ الصرفية', 'error');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        async function saveOpOtherExpense(e) {
+            e.preventDefault();
+            const date = document.getElementById('op-other-date').value;
+            const main_type = 'تشغيلية';
+            const category_name = document.getElementById('op-other-category-select').value;
+            const amount = parseFloat(document.getElementById('op-other-amount').value || 0);
+            const payment_method = document.getElementById('op-other-paymethod').value;
+            const sub_category = document.getElementById('op-other-subcat').value.trim();
+            const notes = document.getElementById('op-other-notes').value.trim();
+
+            if (!date || !category_name || amount <= 0 || !sub_category) {
+                showToast('الرجاء إدخال بيانات المصروف التشغيلي', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/expenses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, main_type, category_name, sub_category, amount, payment_method, recipient: '', notes })
+                });
+
+                if (res.ok) {
+                    document.getElementById('op-other-amount').value = '';
+                    document.getElementById('op-other-subcat').value = '';
+                    document.getElementById('op-other-notes').value = '';
+                    showToast(`✅ تم حفظ المصروف التشغيلي: ${amount.toLocaleString()} د.ع`);
+                    await loadExpensesDashboard();
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
         async function loadExpensesDashboard() {
             const month = document.getElementById('expenses-filter-month').value || new Date().toISOString().slice(0, 7);
+            const genMonthLabel = document.getElementById('gen-exp-month-label');
+            if (genMonthLabel) genMonthLabel.innerText = month;
+
             try {
                 const [sumRes, expRes] = await Promise.all([
                     fetch(`/api/financial-summary?month=${month}`),
@@ -2058,6 +2809,10 @@
                     document.getElementById('exp-kpi-income-qi').innerText = `${Number(summary.qicard_income || 0).toLocaleString()}`;
 
                     document.getElementById('exp-kpi-operational').innerText = `${Number(summary.operational_expenses || 0).toLocaleString()} د.ع`;
+                    document.getElementById('exp-kpi-salaries').innerText = `${Number(summary.total_salaries_paid || 0).toLocaleString()}`;
+                    const otherOp = (summary.operational_expenses || 0) - (summary.total_salaries_paid || 0);
+                    document.getElementById('exp-kpi-op-other').innerText = `${Number(otherOp).toLocaleString()}`;
+
                     document.getElementById('exp-kpi-general').innerText = `${Number(summary.general_expenses || 0).toLocaleString()} د.ع`;
 
                     document.getElementById('exp-kpi-suppliers').innerText = `${Number(summary.total_supplier_pays || 0).toLocaleString()} د.ع`;
@@ -2083,7 +2838,9 @@
                         marginBadge.className = "bg-rose-500/20 text-rose-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-500/30";
                     }
 
-                    applyExpensesFilter();
+                    renderGeneralExpensesTable();
+                    renderOpOtherExpensesTable();
+                    await loadSalaryPayments();
                 }
             } catch (err) {
                 console.error('Error loading expenses dashboard:', err);
@@ -2091,60 +2848,47 @@
             }
         }
 
-        function applyExpensesFilter() {
-            const query = (document.getElementById('exp-search-input').value || '').trim().toLowerCase();
-            const typeFilter = document.getElementById('exp-filter-type').value;
-            const payFilter = document.getElementById('exp-filter-paymethod').value;
-
-            const filtered = expensesCache.filter(item => {
-                const matchType = (typeFilter === 'all' || item.main_type === typeFilter);
-                const matchPay = (payFilter === 'all' || item.payment_method === payFilter);
-                const matchQuery = !query || 
-                    (item.category_name || '').toLowerCase().includes(query) ||
-                    (item.sub_category || '').toLowerCase().includes(query) ||
-                    (item.recipient || '').toLowerCase().includes(query) ||
-                    (item.notes || '').toLowerCase().includes(query);
-                return matchType && matchPay && matchQuery;
-            });
-
-            document.getElementById('expenses-count-badge').innerText = `${filtered.length} صرفية`;
-            renderExpensesTable(filtered);
+        function filterGeneralExpensesTable() {
+            renderGeneralExpensesTable();
         }
 
-        function renderExpensesTable(list) {
-            const tbody = document.getElementById('expenses-table-tbody');
+        function renderGeneralExpensesTable() {
+            const tbody = document.getElementById('gen-expenses-tbody');
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 font-bold">لا توجد صرفيات مطابقة</td></tr>`;
+            const query = (document.getElementById('gen-exp-search')?.value || '').trim().toLowerCase();
+            const genList = expensesCache.filter(item => {
+                if (item.main_type !== 'عامة') return false;
+                if (!query) return true;
+                return (item.category_name || '').toLowerCase().includes(query) ||
+                       (item.notes || '').toLowerCase().includes(query) ||
+                       (item.recipient || '').toLowerCase().includes(query);
+            });
+
+            document.getElementById('gen-expenses-count').innerText = `${genList.length} صرفية`;
+
+            if (genList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">لا توجد صرفيات عامة مسجلة لهذا الشهر</td></tr>`;
                 return;
             }
 
-            list.forEach(item => {
-                const typeBadge = item.main_type === 'تشغيلية' 
-                    ? '<span class="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 px-2 py-0.5 rounded-lg font-black text-[10px] border border-blue-200 dark:border-blue-900">🏭 تشغيلية</span>'
-                    : '<span class="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 px-2 py-0.5 rounded-lg font-black text-[10px] border border-amber-200 dark:border-amber-900">🏢 عامة</span>';
-
-                const payBadge = item.payment_method === 'كي كارد'
-                    ? '<span class="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300 px-2 py-0.5 rounded-lg font-bold text-[10px]">💳 كي كارد</span>'
-                    : '<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded-lg font-bold text-[10px]">💵 كاش</span>';
-
+            genList.forEach(item => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                         <td class="p-2.5 sm:p-3.5 font-bold">${item.date}</td>
-                        <td class="p-2.5 sm:p-3.5">${typeBadge}</td>
+                        <td class="p-2.5 sm:p-3.5 font-black text-slate-900 dark:text-white">${item.category_name}</td>
+                        <td class="p-2.5 sm:p-3.5 font-black text-rose-600 dark:text-rose-400 text-sm whitespace-nowrap">${Number(item.amount).toLocaleString()} د.ع</td>
                         <td class="p-2.5 sm:p-3.5">
-                            <span class="font-black text-slate-900 dark:text-white block">${item.category_name}</span>
-                            ${item.sub_category ? `<span class="text-[10.5px] text-slate-400 block">${item.sub_category}</span>` : ''}
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg text-[10.5px] font-bold">${item.payment_method || 'كاش'}</span>
                         </td>
-                        <td class="p-2.5 sm:p-3.5 font-black text-rose-600 dark:text-rose-400 text-sm sm:text-base whitespace-nowrap">${Number(item.amount).toLocaleString()} د.ع</td>
-                        <td class="p-2.5 sm:p-3.5">${payBadge}</td>
-                        <td class="p-2.5 sm:p-3.5 text-slate-600 dark:text-slate-300 font-bold">${item.recipient || '-'}</td>
-                        <td class="p-2.5 sm:p-3.5 text-slate-500 font-medium text-[11px]">${item.notes || '-'}</td>
-                        <td class="p-2.5 sm:p-3.5 text-center flex justify-center gap-1 whitespace-nowrap">
-                            <button onclick="printExpenseVoucher(${item.id})" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 px-2 py-1 rounded-lg text-xs font-bold transition" title="طباعة سند صرف">🧾</button>
-                            <button onclick="openEditExpenseModal(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 px-2.5 py-1 rounded-lg text-xs font-bold transition">✏️ تعديل</button>
+                        <td class="p-2.5 sm:p-3.5">
+                            <span class="text-slate-800 dark:text-slate-200 font-medium block">${item.notes || '-'}</span>
+                            ${item.recipient ? `<span class="text-[10px] text-slate-400 block">المستفيد: ${item.recipient}</span>` : ''}
+                        </td>
+                        <td class="p-2.5 sm:p-3.5 text-center flex justify-center gap-1.5 whitespace-nowrap">
+                            <button onclick="printExpenseVoucher(${item.id})" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-bold transition" title="طباعة سند صرف">🧾</button>
+                            <button onclick="openEditExpenseModal(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 px-2.5 py-1 rounded-lg text-xs font-bold transition">✏️</button>
                             <button onclick="deleteExpenseItem(${item.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300 px-2.5 py-1 rounded-lg text-xs font-bold transition">🗑️</button>
                         </td>
                     </tr>
@@ -2152,43 +2896,39 @@
             });
         }
 
-        async function saveNewExpense(e) {
-            e.preventDefault();
-            const date = document.getElementById('exp-date').value;
-            const main_type = document.getElementById('exp-main-type').value;
-            const category_name = document.getElementById('exp-category-select').value;
-            const sub_category = document.getElementById('exp-sub-category').value.trim();
-            const amount = parseFloat(document.getElementById('exp-amount').value || 0);
-            const payment_method = document.getElementById('exp-payment-method').value;
-            const recipient = document.getElementById('exp-recipient').value.trim();
-            const notes = document.getElementById('exp-notes').value.trim();
+        function renderOpOtherExpensesTable() {
+            const tbody = document.getElementById('op-other-expenses-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
 
-            if (!date || !category_name || amount <= 0) {
-                showToast('الرجاء إكمال بيانات الصرفية وإدخال مبلغ صحيح', 'error');
+            const opList = expensesCache.filter(item => item.main_type === 'تشغيلية');
+
+            if (opList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">لا توجد مصاريف تشغيلية أخرى مسجلة لهذا الشهر</td></tr>`;
                 return;
             }
 
-            try {
-                const res = await fetch('/api/expenses', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ date, main_type, category_name, sub_category, amount, payment_method, recipient, notes })
-                });
-
-                if (res.ok) {
-                    document.getElementById('exp-amount').value = '';
-                    document.getElementById('exp-sub-category').value = '';
-                    document.getElementById('exp-recipient').value = '';
-                    document.getElementById('exp-notes').value = '';
-                    showToast(`✅ تم حفظ الصرفية: ${amount.toLocaleString()} د.ع بنجاح`);
-                    await loadExpensesDashboard();
-                } else {
-                    const err = await res.json();
-                    showToast(err.detail || 'خطأ في حفظ الصرفية', 'error');
-                }
-            } catch (err) {
-                showToast('خطأ في الاتصال بالسيرفر', 'error');
-            }
+            opList.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                        <td class="p-2.5 sm:p-3.5 font-bold">${item.date}</td>
+                        <td class="p-2.5 sm:p-3.5">
+                            <span class="font-black text-slate-900 dark:text-white block">${item.category_name}</span>
+                            <span class="text-[10.5px] text-slate-400 block">${item.sub_category || ''}</span>
+                        </td>
+                        <td class="p-2.5 sm:p-3.5 font-black text-rose-600 dark:text-rose-400 text-sm whitespace-nowrap">${Number(item.amount).toLocaleString()} د.ع</td>
+                        <td class="p-2.5 sm:p-3.5">
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg text-[10.5px] font-bold">${item.payment_method || 'كاش'}</span>
+                        </td>
+                        <td class="p-2.5 sm:p-3.5 text-slate-600 dark:text-slate-300 text-xs font-medium">${item.notes || '-'}</td>
+                        <td class="p-2.5 sm:p-3.5 text-center flex justify-center gap-1.5 whitespace-nowrap">
+                            <button onclick="printExpenseVoucher(${item.id})" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-lg text-xs font-bold transition" title="طباعة سند صرف">🧾</button>
+                            <button onclick="openEditExpenseModal(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 px-2.5 py-1 rounded-lg text-xs font-bold transition">✏️</button>
+                            <button onclick="deleteExpenseItem(${item.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300 px-2.5 py-1 rounded-lg text-xs font-bold transition">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function openCategoryManagerModal() {
@@ -2341,14 +3081,19 @@
             setTimeout(() => voucherEl.classList.add('hidden'), 1000);
         }
 
-        function exportExpensesExcel() {
-            if (expensesCache.length === 0) {
+        function exportExpensesExcel(filterType = 'all') {
+            let listToExport = expensesCache;
+            if (filterType !== 'all') {
+                listToExport = expensesCache.filter(x => x.main_type === filterType);
+            }
+
+            if (listToExport.length === 0) {
                 showToast('لا توجد صرفيات للتصدير', 'error');
                 return;
             }
 
             let csv = '\uFEFFالتاريخ,النوع,التصنيف,البيان الفرعي,المبلغ (د.ع),طريقة الدفع,المستلم,الملاحظات\n';
-            expensesCache.forEach(item => {
+            listToExport.forEach(item => {
                 csv += `"${item.date}","${item.main_type}","${item.category_name}","${item.sub_category || ''}","${item.amount}","${item.payment_method || 'كاش'}","${item.recipient || ''}","${item.notes || ''}"\n`;
             });
 
@@ -2357,9 +3102,9 @@
             const a = document.createElement('a');
             const month = document.getElementById('expenses-filter-month').value || 'all';
             a.href = url;
-            a.download = `تقرير_صرفيات_صيدلية_أوروك_${month}.csv`;
+            a.download = `تقرير_صرفيات_${filterType}_${month}.csv`;
             a.click();
-            showToast('✅ تم تصدير تقرير الصرفيات إلى Excel بنجاح');
+            showToast('✅ تم تصدير التقرير إلى Excel بنجاح');
         }
 
         function toggleDarkMode() {

@@ -120,6 +120,46 @@ function initDatabase() {
             notes TEXT DEFAULT '',
             created_at TEXT DEFAULT ''
         )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS employees (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            role TEXT DEFAULT 'صيدلي',
+            base_salary REAL NOT NULL DEFAULT 0,
+            phone TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT ''
+        )`);
+
+        db.get(`SELECT count(*) as count FROM employees`, [], (err, row) => {
+            if (!err && row && row.count === 0) {
+                const timeNow = new Date().toISOString();
+                const sampleEmps = [
+                    ['د. علي الموسوي', 'صيدلي ممارس', 1200000, '07701234567', 1, timeNow],
+                    ['أحمد كريم', 'مساعد صيدلي', 750000, '07801234567', 1, timeNow],
+                    ['سجاد حيدر', 'خدمات ونظافة', 400000, '07501234567', 1, timeNow]
+                ];
+                const stmt = db.prepare("INSERT INTO employees (name, role, base_salary, phone, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?)");
+                sampleEmps.forEach(e => stmt.run(e));
+                stmt.finalize();
+            }
+        });
+
+        db.run(`CREATE TABLE IF NOT EXISTS employee_salary_payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_id INTEGER NOT NULL,
+            month TEXT NOT NULL,
+            payment_date TEXT NOT NULL,
+            base_salary REAL NOT NULL,
+            deduction_amount REAL DEFAULT 0,
+            deduction_reason TEXT DEFAULT '',
+            paid_amount REAL NOT NULL,
+            payment_method TEXT DEFAULT 'كاش',
+            notes TEXT DEFAULT '',
+            created_at TEXT DEFAULT '',
+            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+            UNIQUE(employee_id, month)
+        )`);
     });
 }
 
@@ -476,6 +516,104 @@ app.delete('/api/expenses/:id', (req, res) => {
     });
 });
 
+// --- إدارة الموظفين والرواتب ---
+app.get('/api/employees', (req, res) => {
+    db.all(`SELECT * FROM employees ORDER BY id ASC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/employees', (req, res) => {
+    const { name, role, base_salary, phone } = req.body;
+    const nameClean = (name || '').trim();
+    if (!nameClean) return res.status(400).json({ error: 'اسم الموظف لا يمكن أن يكون فارغاً' });
+    const timeNow = new Date().toISOString();
+    db.run(`INSERT INTO employees (name, role, base_salary, phone, is_active, created_at) VALUES (?, ?, ?, ?, 1, ?)`,
+        [nameClean, role || 'صيدلي', parseFloat(base_salary || 0), phone || '', timeNow],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            logAudit('إضافة موظف', `إضافة الموظف: ${nameClean} براتب مرجعي: ${Number(base_salary).toLocaleString()} د.ع`);
+            res.json({ success: true, id: this.lastID });
+        }
+    );
+});
+
+app.put('/api/employees/:id', (req, res) => {
+    const id = req.params.id;
+    const { name, role, base_salary, phone } = req.body;
+    const nameClean = (name || '').trim();
+    db.run(`UPDATE employees SET name = ?, role = ?, base_salary = ?, phone = ? WHERE id = ?`,
+        [nameClean, role || 'صيدلي', parseFloat(base_salary || 0), phone || '', id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            logAudit('تعديل موظف', `تعديل بيانات الموظف: ${nameClean}`);
+            res.json({ success: true });
+        }
+    );
+});
+
+app.delete('/api/employees/:id', (req, res) => {
+    const id = req.params.id;
+    db.run(`DELETE FROM employees WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        logAudit('حذف موظف', `حذف موظف رقم: ${id}`);
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/salary-payments', (req, res) => {
+    const { month } = req.query;
+    let query = `
+        SELECT p.*, e.name as employee_name, e.role as employee_role
+        FROM employee_salary_payments p
+        JOIN employees e ON p.employee_id = e.id
+        WHERE 1=1
+    `;
+    const params = [];
+    if (month) {
+        query += ` AND p.month = ?`;
+        params.push(month);
+    }
+    query += ` ORDER BY p.payment_date DESC, p.id DESC`;
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/salary-payments', (req, res) => {
+    const { employee_id, month, payment_date, base_salary, deduction_amount, deduction_reason, paid_amount, payment_method, notes } = req.body;
+    const timeNow = new Date().toISOString();
+    const query = `
+        INSERT INTO employee_salary_payments 
+            (employee_id, month, payment_date, base_salary, deduction_amount, deduction_reason, paid_amount, payment_method, notes, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(employee_id, month) DO UPDATE SET
+            payment_date = excluded.payment_date,
+            base_salary = excluded.base_salary,
+            deduction_amount = excluded.deduction_amount,
+            deduction_reason = excluded.deduction_reason,
+            paid_amount = excluded.paid_amount,
+            payment_method = excluded.payment_method,
+            notes = excluded.notes
+    `;
+    db.run(query, [employee_id, month, payment_date, base_salary, deduction_amount || 0, deduction_reason || '', paid_amount, payment_method || 'كاش', notes || '', timeNow], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        logAudit('صرف راتب', `صرف راتب شهر ${month} لموظف #${employee_id} بمبلغ: ${Number(paid_amount).toLocaleString()} د.ع`);
+        res.json({ success: true });
+    });
+});
+
+app.delete('/api/salary-payments/:id', (req, res) => {
+    const id = req.params.id;
+    db.run(`DELETE FROM employee_salary_payments WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        logAudit('إلغاء صرف راتب', `إلغاء صرف راتب رقم #${id}`);
+        res.json({ success: true });
+    });
+});
+
 app.get('/api/financial-summary', (req, res) => {
     const { month } = req.query;
     let incQ = `SELECT COALESCE(SUM(amount), 0) AS total_income, COALESCE(SUM(cash_amount), 0) AS cash_income, COALESCE(SUM(qicard_amount), 0) AS qicard_income FROM daily_income`;
@@ -512,35 +650,56 @@ app.get('/api/financial-summary', (req, res) => {
                 else expenses_cash += amt;
             });
 
-            const total_direct_expenses = operational_expenses + general_expenses;
-
-            let supQ = `SELECT COALESCE(SUM(payment_amount), 0) as total_supplier_pays, COALESCE(SUM(discount_amount), 0) as total_discounts FROM supplier_transactions`;
-            let supParams = [];
+            // رواتب الموظفين (ضمن الصرفيات التشغيلية)
+            let salQ = `SELECT payment_method, COALESCE(SUM(paid_amount), 0) as total FROM employee_salary_payments`;
+            let salParams = [];
             if (month) {
-                supQ += ` WHERE date LIKE ?`;
-                supParams.push(`${month}%`);
+                salQ += ` WHERE month = ?`;
+                salParams.push(month);
             }
+            salQ += ` GROUP BY payment_method`;
 
-            db.get(supQ, supParams, (err, supRow) => {
-                const total_supplier_pays = supRow ? supRow.total_supplier_pays : 0;
-                const total_supplier_discounts = supRow ? supRow.total_discounts : 0;
-                const total_outflow = total_direct_expenses + total_supplier_pays;
-                const net_profit = total_income - total_outflow;
+            db.all(salQ, salParams, (err, salRows) => {
+                let total_salaries_paid = 0;
+                (salRows || []).forEach(s => {
+                    const amt = s.total || 0;
+                    total_salaries_paid += amt;
+                    operational_expenses += amt;
+                    if (s.payment_method === 'كي كارد') expenses_qicard += amt;
+                    else expenses_cash += amt;
+                });
 
-                res.json({
-                    month: month || 'all',
-                    total_income,
-                    cash_income,
-                    qicard_income,
-                    operational_expenses,
-                    general_expenses,
-                    total_direct_expenses,
-                    expenses_cash,
-                    expenses_qicard,
-                    total_supplier_pays,
-                    total_supplier_discounts,
-                    total_outflow,
-                    net_profit
+                const total_direct_expenses = operational_expenses + general_expenses;
+
+                let supQ = `SELECT COALESCE(SUM(payment_amount), 0) as total_supplier_pays, COALESCE(SUM(discount_amount), 0) as total_discounts FROM supplier_transactions`;
+                let supParams = [];
+                if (month) {
+                    supQ += ` WHERE date LIKE ?`;
+                    supParams.push(`${month}%`);
+                }
+
+                db.get(supQ, supParams, (err, supRow) => {
+                    const total_supplier_pays = supRow ? supRow.total_supplier_pays : 0;
+                    const total_supplier_discounts = supRow ? supRow.total_discounts : 0;
+                    const total_outflow = total_direct_expenses + total_supplier_pays;
+                    const net_profit = total_income - total_outflow;
+
+                    res.json({
+                        month: month || 'all',
+                        total_income,
+                        cash_income,
+                        qicard_income,
+                        operational_expenses,
+                        general_expenses,
+                        total_salaries_paid,
+                        total_direct_expenses,
+                        expenses_cash,
+                        expenses_qicard,
+                        total_supplier_pays,
+                        total_supplier_discounts,
+                        total_outflow,
+                        net_profit
+                    });
                 });
             });
         });

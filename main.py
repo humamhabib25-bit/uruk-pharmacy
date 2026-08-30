@@ -185,6 +185,48 @@ def init_db():
         )
     """)
 
+    # جداول كادر الموظفين والرواتب الشهرية
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS employees (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            role TEXT DEFAULT 'صيدلي',
+            base_salary REAL NOT NULL DEFAULT 0,
+            phone TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT ''
+        )
+    """)
+
+    # بذر بيانات افتراضية أولية للموظفين إذا كان الجدول فارغاً
+    cursor.execute("SELECT count(*) FROM employees")
+    if cursor.fetchone()[0] == 0:
+        time_now = datetime.now().isoformat()
+        sample_employees = [
+            ('د. علي الموسوي', 'صيدلي ممارس', 1200000, '07701234567', 1, time_now),
+            ('أحمد كريم', 'مساعد صيدلي', 750000, '07801234567', 1, time_now),
+            ('سجاد حيدر', 'خدمات ونظافة', 400000, '07501234567', 1, time_now)
+        ]
+        cursor.executemany("INSERT INTO employees (name, role, base_salary, phone, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?)", sample_employees)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS employee_salary_payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_id INTEGER NOT NULL,
+            month TEXT NOT NULL,
+            payment_date TEXT NOT NULL,
+            base_salary REAL NOT NULL,
+            deduction_amount REAL DEFAULT 0,
+            deduction_reason TEXT DEFAULT '',
+            paid_amount REAL NOT NULL,
+            payment_method TEXT DEFAULT 'كاش',
+            notes TEXT DEFAULT '',
+            created_at TEXT DEFAULT '',
+            FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+            UNIQUE(employee_id, month)
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -279,6 +321,23 @@ class ExpenseCreate(BaseModel):
     amount: float
     payment_method: str = "كاش"
     recipient: str = ""
+    notes: str = ""
+
+class EmployeeCreate(BaseModel):
+    name: str
+    role: str = "صيدلي"
+    base_salary: float = 0
+    phone: str = ""
+
+class SalaryPaymentCreate(BaseModel):
+    employee_id: int
+    month: str
+    payment_date: str
+    base_salary: float
+    deduction_amount: float = 0
+    deduction_reason: str = ""
+    paid_amount: float
+    payment_method: str = "كاش"
     notes: str = ""
 
 @app.get("/api/suppliers")
@@ -760,6 +819,155 @@ def delete_expense(exp_id: int):
     conn.close()
     return {"success": True}
 
+# ==================== قسم إدارة الموظفين والرواتب (Employees & Payroll APIs) ====================
+
+@app.get("/api/employees")
+def get_employees():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM employees ORDER BY id ASC")
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return rows
+
+@app.post("/api/employees")
+def add_employee(emp: EmployeeCreate):
+    name_clean = emp.name.strip()
+    if not name_clean:
+        raise HTTPException(status_code=400, detail="اسم الموظف لا يمكن أن يكون فارغاً")
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("""
+            INSERT INTO employees (name, role, base_salary, phone, is_active, created_at)
+            VALUES (?, ?, ?, ?, 1, ?)
+        """, (name_clean, emp.role.strip(), emp.base_salary, emp.phone.strip(), time_now))
+        new_id = cursor.lastrowid
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'إضافة موظف', f"إضافة الموظف: {name_clean} براتب مرجعي: {emp.base_salary:,.0f} د.ع"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True, "id": new_id}
+
+@app.put("/api/employees/{emp_id}")
+def update_employee(emp_id: int, emp: EmployeeCreate):
+    name_clean = emp.name.strip()
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("""
+            UPDATE employees SET name = ?, role = ?, base_salary = ?, phone = ?
+            WHERE id = ?
+        """, (name_clean, emp.role.strip(), emp.base_salary, emp.phone.strip(), emp_id))
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'تعديل موظف', f"تعديل بيانات الموظف: {name_clean} (راتب: {emp.base_salary:,.0f} د.ع)"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
+@app.delete("/api/employees/{emp_id}")
+def delete_employee(emp_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("SELECT name FROM employees WHERE id = ?", (emp_id,))
+        emp_row = cursor.fetchone()
+        emp_name = emp_row["name"] if emp_row else str(emp_id)
+        cursor.execute("DELETE FROM employees WHERE id = ?", (emp_id,))
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'حذف موظف', f"حذف الموظف: {emp_name}"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
+@app.get("/api/salary-payments")
+def get_salary_payments(month: str = None):
+    conn = get_db()
+    cursor = conn.cursor()
+    query = """
+        SELECT 
+            p.*, 
+            e.name as employee_name, 
+            e.role as employee_role
+        FROM employee_salary_payments p
+        JOIN employees e ON p.employee_id = e.id
+        WHERE 1=1
+    """
+    params = []
+    if month:
+        query += " AND p.month = ?"
+        params.append(month)
+    query += " ORDER BY p.payment_date DESC, p.id DESC"
+    cursor.execute(query, params)
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return rows
+
+@app.post("/api/salary-payments")
+def record_salary_payment(pay: SalaryPaymentCreate):
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("""
+            INSERT INTO employee_salary_payments 
+                (employee_id, month, payment_date, base_salary, deduction_amount, deduction_reason, paid_amount, payment_method, notes, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(employee_id, month) DO UPDATE SET
+                payment_date = excluded.payment_date,
+                base_salary = excluded.base_salary,
+                deduction_amount = excluded.deduction_amount,
+                deduction_reason = excluded.deduction_reason,
+                paid_amount = excluded.paid_amount,
+                payment_method = excluded.payment_method,
+                notes = excluded.notes
+        """, (pay.employee_id, pay.month, pay.payment_date, pay.base_salary, pay.deduction_amount, pay.deduction_reason.strip(), pay.paid_amount, pay.payment_method, pay.notes.strip(), time_now))
+        
+        cursor.execute("SELECT name FROM employees WHERE id = ?", (pay.employee_id,))
+        emp_name = cursor.fetchone()["name"]
+        
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'صرف راتب', f"صرف راتب شهر {pay.month} للموظف: {emp_name} بمبلغ: {pay.paid_amount:,.0f} د.ع (خصم: {pay.deduction_amount:,.0f})"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
+@app.delete("/api/salary-payments/{pay_id}")
+def cancel_salary_payment(pay_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    time_now = datetime.now().isoformat()
+    try:
+        cursor.execute("DELETE FROM employee_salary_payments WHERE id = ?", (pay_id,))
+        cursor.execute("INSERT INTO audit_logs (action_time, action_type, details) VALUES (?, ?, ?)",
+                       (time_now, 'إلغاء صرف راتب', f"إلغاء صرف راتب رقم #{pay_id}"))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
+    conn.close()
+    return {"success": True}
+
 @app.get("/api/financial-summary")
 def get_financial_summary(month: str = None):
     conn = get_db()
@@ -803,6 +1011,26 @@ def get_financial_summary(month: str = None):
         else:
             expenses_cash += amt
 
+    # 2.1 رواتب الموظفين (تُدرج ضمن الصرفيات التشغيلية)
+    salary_query = "SELECT payment_method, COALESCE(SUM(paid_amount), 0) as total FROM employee_salary_payments"
+    salary_params = []
+    if month:
+        salary_query += " WHERE month = ?"
+        salary_params.append(month)
+    salary_query += " GROUP BY payment_method"
+    cursor.execute(salary_query, salary_params)
+    sal_rows = cursor.fetchall()
+    
+    total_salaries_paid = 0
+    for s in sal_rows:
+        amt = s["total"] or 0
+        total_salaries_paid += amt
+        operational_expenses += amt
+        if s["payment_method"] == "كي كارد":
+            expenses_qicard += amt
+        else:
+            expenses_cash += amt
+
     total_direct_expenses = operational_expenses + general_expenses
 
     # 3. تسديدات المذاخر
@@ -828,6 +1056,7 @@ def get_financial_summary(month: str = None):
         "qicard_income": qicard_income,
         "operational_expenses": operational_expenses,
         "general_expenses": general_expenses,
+        "total_salaries_paid": total_salaries_paid,
         "total_direct_expenses": total_direct_expenses,
         "expenses_cash": expenses_cash,
         "expenses_qicard": expenses_qicard,
