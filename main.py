@@ -562,7 +562,8 @@ def get_audit_logs():
     return rows
 
 def run_server():
-    uvicorn.run(app, host="0.0.0.0", port=3000, log_config=None)
+    port = int(os.environ.get("PORT", 3000))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_config=None)
 
 if __name__ == "__main__":
     server_thread = threading.Thread(target=run_server, daemon=True)
