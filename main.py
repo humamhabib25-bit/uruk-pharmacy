@@ -10,8 +10,12 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import sqlite3
-import webview
 import sys
+
+try:
+    import webview
+except Exception:
+    webview = None
 
 # تحديد المسارات لتعمل بشكل صحيح وثابت في وضع الأوفلاين والـ .exe
 if getattr(sys, 'frozen', False):
@@ -583,14 +587,17 @@ def run_server():
     uvicorn.run(app, host="0.0.0.0", port=port, log_config=None)
 
 if __name__ == "__main__":
-    server_thread = threading.Thread(target=run_server, daemon=True)
-    server_thread.start()
+    if webview:
+        server_thread = threading.Thread(target=run_server, daemon=True)
+        server_thread.start()
 
-    webview.create_window(
-        title="صيدلية أوروك - نظام الإدارة",
-        url="http://127.0.0.1:3000",
-        width=1280,
-        height=768,
-        min_size=(1024, 600)
-    )
-    webview.start(private_mode=False)
+        webview.create_window(
+            title="صيدلية أوروك - نظام الإدارة",
+            url="http://127.0.0.1:3000",
+            width=1280,
+            height=768,
+            min_size=(1024, 600)
+        )
+        webview.start(private_mode=False)
+    else:
+        run_server()
