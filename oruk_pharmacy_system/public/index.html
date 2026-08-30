@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صيدلية أوروك - نظام إدارة المذاخر والإيرادات والديون المتقدم</title>
+    <!-- خط القاهرة العربي الفاخر Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- مكتبة Chart.js للرسوم البيانية التفاعلية -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
+        }
+        body { 
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+        }
+        .animate-pulse-dot {
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+        /* Print styles */
+        @media print {
+            body * { visibility: hidden !important; }
+            #printable-statement, #printable-statement *, 
+            #printable-pdf-report, #printable-pdf-report *,
+            #printable-voucher, #printable-voucher * { visibility: visible !important; }
+            #printable-statement { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 25px; color: black !important; z-index: 99999; }
+            #printable-pdf-report { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 25px; color: black !important; display: block !important; z-index: 99999; }
+            #printable-voucher { position: absolute; left: 0; top: 0; width: 100%; background: white !important; padding: 25px; color: black !important; display: block !important; z-index: 99999; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body id="page-body" class="bg-slate-50 dark:bg-[#090d16] text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 antialiased p-3 sm:p-6 flex flex-col justify-between">
+
+    <div id="toast-container" class="fixed bottom-6 left-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <div class="max-w-[1440px] mx-auto w-full space-y-6 flex-1">
+
+        <!-- الهيدر التنفيذي المطور -->
+        <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 sm:p-6 rounded-3xl shadow-2xl border border-indigo-900/40 relative overflow-hidden backdrop-blur-xl">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-5">
+                <div class="flex items-center gap-4 text-center lg:text-right">
+                    <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/30 ring-4 ring-indigo-400/20 flex-shrink-0">
+                        🏥
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2.5 flex-wrap justify-center lg:justify-start">
+                            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">صيدلية أوروك</h1>
+                            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot"></span>
+                                متصل ويعمل
+                            </span>
+                        </div>
+                        <p class="text-slate-300 text-xs sm:text-sm mt-1 flex items-center gap-2 flex-wrap justify-center lg:justify-start font-medium">
+                            <span>نظام إدارة المذاخر والديون والإيرادات الذكي</span>
+                            <span class="bg-purple-900/70 text-purple-200 border border-purple-700/60 px-3 py-0.5 rounded-full text-[11px] font-black shadow-inner">إشراف: د. همام 🩺</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات السريعة في الهيدر -->
+                <div class="flex items-center gap-2 flex-wrap justify-center">
+                    <button type="button" onclick="openAuditLogModal()" class="bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-slate-200 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-md" title="سجل تدقيق العمليات">
+                        <span>🛡️</span>
+                        <span>سجل العمليات</span>
+                    </button>
+                    <button type="button" onclick="openRestoreModal()" class="bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-amber-300 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-md" title="استعادة نسخة احتياطية سابقة">
+                        <span>🔄</span>
+                        <span>استعادة نسخة</span>
+                    </button>
+                    <button type="button" onclick="downloadManualBackup()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 border border-indigo-400/30" title="تحميل نسخة احتياطية من قاعدة البيانات">
+                        <span>💾</span>
+                        <span>نسخة احتياطية</span>
+                    </button>
+                    <button type="button" onclick="exportAllSuppliersExcel()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 border border-emerald-400/30" title="تصدير بيانات جميع المذاخر إلى Excel">
+                        <span>📊</span>
+                        <span>تصدير Excel</span>
+                    </button>
+                    <button type="button" onclick="toggleDarkMode()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-amber-400 p-2.5 rounded-2xl border border-slate-700/80 transition-all text-sm font-bold shadow-md" title="التبديل بين الوضع الليلي والنهاري">
+                        🌙 / ☀️
+                    </button>
+                </div>
+            </div>
+
+            <!-- بطاقات المؤشرات المالية الرئيسية (KPIs) في الهيدر -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-6 pt-5 border-t border-slate-800/80">
+                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-amber-500/20 flex items-center gap-3.5 shadow-inner">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl flex-shrink-0 border border-amber-500/20">
+                        💰
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[11px] font-bold text-slate-400">إجمالي المديونية الكلية</span>
+                        <strong id="global-debt-display" class="text-lg sm:text-xl font-black text-amber-400 tracking-tight block truncate">0 د.ع</strong>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-rose-500/20 flex items-center gap-3.5 shadow-inner">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl flex-shrink-0 border border-rose-500/20">
+                        ⏳
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[11px] font-bold text-rose-300">ديون مستحقة (>45 يوم)</span>
+                        <strong id="global-overdue-display" class="text-lg sm:text-xl font-black text-rose-400 tracking-tight block truncate">0 د.ع</strong>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-emerald-500/20 flex items-center gap-3.5 shadow-inner">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl flex-shrink-0 border border-emerald-500/20">
+                        💵
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[11px] font-bold text-emerald-300">دخل الشهر الحالي</span>
+                        <strong id="global-month-income-display" class="text-lg sm:text-xl font-black text-emerald-400 tracking-tight block truncate">0 د.ع</strong>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/60 hover:bg-slate-800/90 transition-colors p-4 rounded-2xl border border-indigo-500/20 flex items-center gap-3.5 shadow-inner">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl flex-shrink-0 border border-indigo-500/20">
+                        📈
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[11px] font-bold text-indigo-300">نسبة تغطية التسديدات</span>
+                        <strong id="global-coverage-display" class="text-lg sm:text-xl font-black text-indigo-300 tracking-tight block truncate">0%</strong>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- شريط التنبيه الذكي عند وجود ديون متأخرة أو قريبة من الاستحقاق -->
+        <div id="smart-alerts-bar" class="hidden">
+            <div class="bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-rose-500/10 dark:from-rose-950/40 dark:via-amber-950/40 dark:to-rose-950/40 border-2 border-rose-500/30 p-4 rounded-2xl flex items-center justify-between gap-3 shadow-md">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl animate-bounce">⚠️</span>
+                    <div>
+                        <div id="smart-alerts-text" class="text-xs sm:text-sm font-black text-rose-900 dark:text-rose-200">تنبيه النظام: توجد ديون حرجة تحتاج لمتابعة عاجلة.</div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">يرجى مراجعة المذاخر التي تجاوزت 45 يوماً وترتيب خطة تسديدها.</p>
+                    </div>
+                </div>
+                <button onclick="filterByStatus('critical')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl transition shadow flex-shrink-0">
+                    عرض المذاخر الحرجة ⚠️
+                </button>
+            </div>
+        </div>
+
+        <!-- أشرطة التبويب الرئيسية (Tabs) -->
+        <nav class="flex gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-3 no-print overflow-x-auto">
+            <button onclick="switchTab('suppliers')" id="tab-btn-suppliers" class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 flex-shrink-0">
+                <span>📦</span>
+                <span>إدارة المذاخر والديون والإيرادات</span>
+            </button>
+            <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-2 flex-shrink-0">
+                <span>📊</span>
+                <span>الرسوم البيانية والتحليل المالي</span>
+            </button>
+            <button onclick="switchTab('plans')" id="tab-btn-plans" class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-2 flex-shrink-0">
+                <span>📋</span>
+                <span>خطط التسديد الشهرية</span>
+            </button>
+        </nav>
+
+        <!-- المحتوى الرئيسي (Main Content) -->
+        <main class="space-y-6">
+
+            <!-- تبويب 1: إدارة المذاخر والديون والمالية اليومية -->
+            <div id="tab-content-suppliers" class="space-y-6">
+                
+                <!-- صندوق المذاخر والتحكم الذكي -->
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800/80 space-y-5">
+                    
+                    <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                <span class="text-indigo-600 dark:text-indigo-400">📦 مذاخر صيدلية أوروك</span>
+                                <span id="suppliers-badge-count" class="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-extrabold border border-indigo-200 dark:border-indigo-800">0 مذخر</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">مرتبة تلقائياً لمتابعة المديونيات والكشوفات بكل سهولة وسرعة</p>
+                        </div>
+
+                        <!-- أدوات الفلترة والأزرار الإجرائية -->
+                        <div class="flex gap-2.5 flex-wrap items-center w-full lg:w-auto">
+                            <!-- البحث المباشر -->
+                            <div class="relative flex-1 sm:w-56">
+                                <input type="text" id="sup-search-input" oninput="applyFilter()" placeholder="🔍 بحث عن مذخر أو هاتف..." class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl px-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
+                            </div>
+
+                            <!-- فلترة التصنيفات -->
+                            <select id="sup-category-filter" onchange="applyFilter()" class="border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white shadow-inner">
+                                <option value="all">🏷️ كل التصنيفات</option>
+                                <option value="أدوية عامة">أدوية عامة</option>
+                                <option value="مستلزمات طبية">مستلزمات طبية</option>
+                                <option value="تجميل وعناية">تجميل وعناية</option>
+                                <option value="حليب وأغذية">حليب وأغذية</option>
+                                <option value="وكيل حصري">وكيل حصري</option>
+                            </select>
+
+                            <!-- فلاتر الحالة بما فيها الأرشفة -->
+                            <div class="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl gap-1 text-xs font-bold border border-slate-200/60 dark:border-slate-700/60 shadow-inner">
+                                <button onclick="filterByStatus('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white shadow transition-all">النشطة</button>
+                                <button onclick="filterByStatus('critical')" id="filter-btn-critical" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-rose-500 transition-all">الحرجة ⚠️</button>
+                                <button onclick="filterByStatus('zero')" id="filter-btn-zero" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-all">الصفرية ✨</button>
+                                <button onclick="filterByStatus('archived')" id="filter-btn-archived" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-500 transition-all">المؤرشفة 📂</button>
+                            </div>
+
+                            <!-- زر التبديل بين عرض البطاقات والجدول -->
+                            <div class="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl gap-1 text-xs font-bold border border-slate-200/60 dark:border-slate-700/60 shadow-inner">
+                                <button onclick="setViewMode('cards')" id="view-mode-cards-btn" class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow transition-all flex items-center gap-1" title="عرض البطاقات">
+                                    <span>🎴</span>
+                                    <span>بطاقات</span>
+                                </button>
+                                <button onclick="setViewMode('table')" id="view-mode-table-btn" class="px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all flex items-center gap-1" title="عرض الجدول المحاسبي">
+                                    <span>📋</span>
+                                    <span>جدول</span>
+                                </button>
+                            </div>
+
+                            <!-- أزرار الإجراءات الرئيسية -->
+                            <button type="button" onclick="openModal('list-modal')" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white px-3.5 py-2 rounded-2xl text-xs font-black shadow-md transition-all flex items-center gap-1">
+                                <span>🛒</span>
+                                <span>+ قائمة</span>
+                            </button>
+                            <button type="button" onclick="openModal('pay-modal')" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white px-3.5 py-2 rounded-2xl text-xs font-black shadow-md transition-all flex items-center gap-1">
+                                <span>💳</span>
+                                <span>+ تسديد</span>
+                            </button>
+                            <button type="button" onclick="openModal('add-sup-modal')" class="bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 active:scale-95 px-3.5 py-2 rounded-2xl text-xs font-black shadow-md transition-all flex items-center gap-1">
+                                <span>➕</span>
+                                <span>مذخر جديد</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- منطقة العرض 1: بطاقات المذاخر (Cards Grid) -->
+                    <div id="suppliers-cards-view">
+                        <div id="suppliers-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5"></div>
+                    </div>
+
+                    <!-- منطقة العرض 2: الجدول المحاسبي السريع (Table View) -->
+                    <div id="suppliers-table-view" class="hidden overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl shadow-inner">
+                        <table class="w-full text-right border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-slate-700">
+                                    <th class="p-3.5">المذخر</th>
+                                    <th class="p-3.5">التصنيف</th>
+                                    <th class="p-3.5">الهاتف</th>
+                                    <th class="p-3.5">إجمالي السحوبات</th>
+                                    <th class="p-3.5">إجمالي التسديدات</th>
+                                    <th class="p-3.5">الخصومات</th>
+                                    <th class="p-3.5 font-black text-amber-600 dark:text-amber-400">صافي المديونية</th>
+                                    <th class="p-3.5 text-rose-600 font-black">المستحقة (>45)</th>
+                                    <th class="p-3.5 text-center">الحالة</th>
+                                    <th class="p-3.5 text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suppliers-table-tbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- شريط تصنيف المذاخر حسب فئات المديونية (Tiers) -->
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                        <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                            <span>📊</span>
+                            <span>توزيع المذاخر حسب شرائح المديونية (إجمالي: <span id="total-suppliers-count" class="text-slate-900 dark:text-white font-extrabold">0</span> مذخر)</span>
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs" id="suppliers-tier-stats"></div>
+                </div>
+
+                <!-- مركز الإيرادات والسيولة اليومية والمحاكي المالي -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- كارد 1: تسجيل الدخل اليومي -->
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                            <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                <span>💵</span>
+                                <span>تسجيل الدخل اليومي للصيدلية</span>
+                            </span>
+                            <button onclick="openIncomeLogModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-3 py-1 rounded-xl text-[11px] font-extrabold transition border border-emerald-200 dark:border-emerald-900">
+                                📋 سجل الإيرادات
+                            </button>
+                        </div>
+                        <form onsubmit="saveDailyIncome(event)" class="space-y-3 text-xs">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <label class="font-bold text-slate-500">تاريخ الدخل</label>
+                                    <span id="income-day-name" class="text-[11px] font-black text-indigo-600 dark:text-indigo-400"></span>
+                                </div>
+                                <input type="date" id="income-date" onchange="updateDayName(this, 'income-day-name')" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1 text-slate-500">مبلغ الدخل اليومي (د.ع)</label>
+                                <input type="text" id="income-amount" onfocus="clearZero(this)" oninput="formatNumberInput(this)" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-emerald-600 dark:text-emerald-400 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-98 text-white py-3 rounded-2xl font-black text-xs transition shadow-md shadow-emerald-600/20">
+                                ✓ حفظ وتثبيت الدخل اليومي
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- كارد 2: ملخص أداء الشهر الحالي والتدفق النقدي -->
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3.5">
+                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                            <span class="text-xs font-black text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                                <span>📊</span>
+                                <span>مؤشرات دخل وتدفقات الشهر</span>
+                            </span>
+                            <span id="current-month-income-box" class="text-xs font-black text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2.5 py-1 rounded-xl border border-purple-200 dark:border-purple-900">0 د.ع</span>
+                        </div>
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex justify-between bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-slate-500 font-medium">معدل الدخل اليومي:</span>
+                                <strong id="stat-daily-avg-card" class="text-slate-900 dark:text-white font-black">0 د.ع</strong>
+                            </div>
+                            <div class="flex justify-between bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-slate-500 font-medium">مقارنة مع تسديدات الشهر:</span>
+                                <strong id="stat-coverage-card" class="text-emerald-600 dark:text-emerald-400 font-black">0%</strong>
+                            </div>
+                            <div class="flex justify-between bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-slate-500 font-medium">صافي التدفق النقدي:</span>
+                                <strong id="stat-net-cash-card" class="text-blue-600 dark:text-blue-400 font-black">0 د.ع</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- كارد 3: محاكي السداد الذكي -->
+                    <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-white p-5 rounded-3xl shadow-md border border-indigo-900/50 flex flex-col justify-between space-y-3.5">
+                        <div class="flex justify-between items-center border-b border-indigo-800/60 pb-2">
+                            <h3 class="text-xs font-black flex items-center gap-1.5 text-indigo-200">
+                                <span>⚡</span>
+                                <span>محاكي السداد وتوزيع السيولة</span>
+                            </h3>
+                            <span class="text-[10px] text-indigo-300 bg-indigo-900/60 px-2 py-0.5 rounded-full border border-indigo-700/50">توزيع ذكي</span>
+                        </div>
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex gap-2">
+                                <input type="text" id="simulator-amount" onfocus="clearZero(this)" oninput="formatNumberInput(this)" placeholder="أدخل المبلغ المتوفر لديك..." class="w-full bg-slate-800/90 border border-slate-700 rounded-2xl px-3.5 py-2 text-xs font-black text-amber-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <button onclick="runPaymentSimulator()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-4 py-2 rounded-2xl font-black text-xs shadow transition-all flex-shrink-0">
+                                    محاكاة
+                                </button>
+                            </div>
+                            <div id="simulator-result" class="text-[11px] text-slate-300 bg-slate-800/60 p-3 rounded-2xl max-h-24 overflow-y-auto border border-slate-700/60 leading-relaxed">
+                                أدخل السيولة النقدية المتاحة لتوليد أفضل خطة لتسديد المديونيات...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سحوبات وتسديدات الشهر الحالي -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                            <span class="text-xs font-black text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                                <span>🛒</span>
+                                <span>سحوبات وقوائم الشهر الحالي</span>
+                            </span>
+                            <span id="current-month-lists-total" class="text-xs font-black text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-xl border border-blue-200 dark:border-blue-900">0 د.ع</span>
+                        </div>
+                        <div id="current-month-lists-details" class="space-y-2 max-h-36 overflow-y-auto pr-1 text-xs">
+                            <p class="text-slate-400 text-center py-4">لا توجد سحوبات هذا الشهر</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                            <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                <span>💳</span>
+                                <span>تسديدات وخصومات الشهر الحالي</span>
+                            </span>
+                            <span id="current-month-pays-total" class="text-xs font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-xl border border-emerald-200 dark:border-emerald-900">0 د.ع</span>
+                        </div>
+                        <div id="current-month-pays-details" class="space-y-2 max-h-36 overflow-y-auto pr-1 text-xs">
+                            <p class="text-slate-400 text-center py-4">لا توجد تسديدات هذا الشهر</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- حاسبة خطة سقف المديونية والمدة الزمنية -->
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
+                        <h3 class="text-sm font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                            <span>🎯</span>
+                            <span>حاسبة خطة خفض المديونية والوصول للسقف المستهدف</span>
+                        </h3>
+                        <span class="text-xs text-slate-500">إجمالي المديونية الحالية: <strong id="plan-current-total-debt" class="text-amber-500 font-extrabold">0 د.ع</strong></span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                        <div>
+                            <label class="block font-bold mb-1 text-slate-500">سقف المديونية المستهدف (د.ع)</label>
+                            <input type="text" id="plan-target-debt" oninput="formatNumberInput(this); calculateDebtPlan();" placeholder="مثلاً: 10,000,000" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-indigo-600 dark:text-indigo-400">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1 text-slate-500">السحب الشهري المتوقع (د.ع)</label>
+                            <input type="text" id="plan-monthly-list" oninput="formatNumberInput(this); calculateDebtPlan();" placeholder="مثلاً: 5,000,000" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-blue-600 dark:text-blue-400">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1 text-slate-500">التسديد الشهري المتوقع (د.ع)</label>
+                            <input type="text" id="plan-monthly-pay" oninput="formatNumberInput(this); calculateDebtPlan();" placeholder="مثلاً: 8,000,000" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-emerald-600 dark:text-emerald-400">
+                        </div>
+                    </div>
+                    <div id="plan-result-box" class="bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 p-4 rounded-2xl text-xs font-bold text-indigo-900 dark:text-indigo-300 text-center leading-relaxed">
+                        قم بإدخال أرقام الخطة في الحقول أعلاه لمعرفة المدة الزمنية الدقيقة للوصول للهدف.
+                    </div>
+                </div>
+            </div>
+
+            <!-- تبويب 2: الرسوم البيانية التفاعلية والتحليل المالي المتقدم -->
+            <div id="tab-content-analytics" class="space-y-6 hidden">
+                <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                <span>📊</span>
+                                <span>لوحة المؤشرات والرسوم البيانية والتقارير المالية</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">تحليل مسار المديونية وكبار الدائنين والخصومات الفتروية</p>
+                        </div>
+                        <div class="flex gap-2 items-center flex-wrap">
+                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-2xl text-xs font-bold shadow-inner">
+                                <span class="text-slate-500">من:</span>
+                                <input type="date" id="report-date-from" class="bg-transparent text-xs font-bold focus:outline-none dark:text-white">
+                                <span class="text-slate-500">إلى:</span>
+                                <input type="date" id="report-date-to" class="bg-transparent text-xs font-bold focus:outline-none dark:text-white">
+                                <button type="button" onclick="togglePdfReportBox()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-black shadow-md transition mr-1">
+                                    📊 إصدار كشف فتروي
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- بطاقات المؤشرات المالية المحاسبية (DPO والخصومات والسيولة) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                        <div class="bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 p-4 rounded-2xl space-y-1">
+                            <span class="text-slate-500 dark:text-slate-400 block font-bold">معدل فترة السداد الفعلي (DPO)</span>
+                            <strong id="stat-dpo" class="text-indigo-600 dark:text-indigo-400 text-lg font-black">0 يوم</strong>
+                        </div>
+                        <div class="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 p-4 rounded-2xl space-y-1">
+                            <span class="text-slate-500 dark:text-slate-400 block font-bold">إجمالي الخصومات المكتسبة (وفورات)</span>
+                            <strong id="stat-total-discounts" class="text-emerald-600 dark:text-emerald-400 text-lg font-black">0 د.ع</strong>
+                        </div>
+                        <div class="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 p-4 rounded-2xl space-y-1">
+                            <span class="text-slate-500 dark:text-slate-400 block font-bold">صافي التدفق النقدي الشهري</span>
+                            <strong id="stat-net-cash" class="text-blue-600 dark:text-blue-400 text-lg font-black">0 د.ع</strong>
+                        </div>
+                        <div class="bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-4 rounded-2xl space-y-1">
+                            <span class="text-slate-500 dark:text-slate-400 block font-bold">إجمالي الاسترجاعات الميدانية</span>
+                            <strong id="stat-total-returns" class="text-rose-600 dark:text-rose-400 text-lg font-black">0 د.ع</strong>
+                        </div>
+                    </div>
+
+                    <!-- الرسوم البيانية التفاعلية Chart.js -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- رسم بياني خطي لمسار المديونية والسيولة -->
+                        <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-800/40 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2">
+                                <h3 class="font-black text-xs sm:text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                    <span>📈</span>
+                                    <span>مسار المشتريات والتسديدات والدخل (آخر 6 أشهر)</span>
+                                </h3>
+                            </div>
+                            <div class="relative h-64 sm:h-72 w-full">
+                                <canvas id="monthlyTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- رسم بياني دائري لتوزيع كبار الدائنين -->
+                        <div class="bg-slate-50 dark:bg-slate-800/40 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3 flex flex-col justify-between">
+                            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2">
+                                <h3 class="font-black text-xs sm:text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                    <span>🍩</span>
+                                    <span>أكبر 5 مذاخر دائنة (تركز الديون)</span>
+                                </h3>
+                            </div>
+                            <div class="relative h-56 w-full flex items-center justify-center">
+                                <canvas id="topCreditorsChart"></canvas>
+                            </div>
+                            <div id="top-creditors-legend" class="text-[11px] space-y-1 text-slate-500 dark:text-slate-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- صندوق التقرير الفتروي القابل للطباعة والتصدير -->
+                    <div id="pdf-report-box" class="hidden bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border-2 border-indigo-500/30 space-y-6 shadow-2xl transition-all">
+                        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4 no-print">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 p-2 rounded-xl text-sm font-bold">📊</span>
+                                <h3 class="font-black text-base">الكشف المالي الفتروي الشامل</h3>
+                            </div>
+                            <div class="flex gap-2.5 items-center">
+                                <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-black shadow transition flex items-center gap-1.5">🖨️ طباعة التقرير</button>
+                                <button onclick="closePdfReportBox()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 px-3.5 py-2 rounded-xl text-xs font-bold transition">✕ إغلاق</button>
+                            </div>
+                        </div>
+
+                        <div id="printable-pdf-report" class="bg-white text-slate-900 p-8 rounded-3xl space-y-8 border border-slate-200 shadow-sm">
+                            <div class="space-y-6">
+                                <div class="flex justify-between items-start border-b-2 border-indigo-600 pb-6">
+                                    <div>
+                                        <h2 class="text-2xl font-black text-slate-900">صيدلية أوروك</h2>
+                                        <p class="text-xs font-bold text-indigo-600 mt-1">التقرير المالي والتحليلي الشامل للمذاخر والإيرادات والديون</p>
+                                    </div>
+                                    <div class="text-left space-y-1">
+                                        <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-[11px] font-extrabold">إشراف: د. همام 🩺</span>
+                                        <p class="text-[11px] text-slate-500 pt-1">تاريخ الإصدار: <span id="pdf-report-date" class="font-bold"></span></p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                                    <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-2xl space-y-1">
+                                        <span class="block text-slate-500 font-medium">سحوبات الفترة</span>
+                                        <strong id="pdf-val-lists" class="text-blue-700 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                    <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-1">
+                                        <span class="block text-slate-500 font-medium">تسديدات الفترة</span>
+                                        <strong id="pdf-val-pays" class="text-emerald-700 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                    <div class="p-4 bg-amber-50/60 border border-amber-200 rounded-2xl space-y-1">
+                                        <span class="block text-slate-500 font-medium">خصومات الفترة</span>
+                                        <strong id="pdf-val-discs" class="text-amber-700 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                    <div class="p-4 bg-rose-50/60 border border-rose-200 rounded-2xl space-y-1">
+                                        <span class="block text-slate-500 font-medium">استرجاعات الفترة</span>
+                                        <strong id="pdf-val-rets" class="text-rose-700 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs pt-2">
+                                    <div class="p-4 bg-amber-50/80 border border-amber-300 rounded-2xl space-y-1">
+                                        <span class="block text-slate-600 font-bold">إجمالي صافي المديونية الكلية</span>
+                                        <strong id="pdf-val-total-debt" class="text-amber-800 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                    <div class="p-4 bg-rose-50/80 border border-rose-300 rounded-2xl space-y-1">
+                                        <span class="block text-slate-600 font-bold">إجمالي الديون المستحقة (>45 يوم)</span>
+                                        <strong id="pdf-val-total-overdue" class="text-rose-800 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                    <div class="p-4 bg-emerald-50/80 border border-emerald-300 rounded-2xl space-y-1">
+                                        <span class="block text-slate-600 font-bold">إجمالي دخل الصيدلية (الفترة المحددة)</span>
+                                        <strong id="pdf-val-total-income" class="text-emerald-800 text-base font-black">0 د.ع</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4 pt-4 border-t">
+                                <h4 class="font-black text-sm text-slate-900 border-r-4 border-blue-600 pr-3">سجل أرصدة المذاخر حسب الفترة</h4>
+                                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                                    <table class="w-full text-right border-collapse text-xs">
+                                        <thead>
+                                            <tr class="bg-slate-100 text-slate-700 border-b font-black">
+                                                <th class="p-3">اسم المذخر</th>
+                                                <th class="p-3">سحوبات الفترة</th>
+                                                <th class="p-3">تسديدات الفترة</th>
+                                                <th class="p-3">صافي المديونية الكلية</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pdf-suppliers-tbody" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تحليل أعمار الديون (Aging Analysis) -->
+                    <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 rounded-3xl space-y-4 border border-indigo-900/40">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-black text-sm flex items-center gap-2">
+                                <span>⏳</span>
+                                <span>تحليل أعمار الديون (Aging Analysis)</span>
+                            </h3>
+                            <span class="text-[11px] text-slate-400">مقسمة حسب مدة استحقاق الفواتير</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
+                            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 space-y-1">
+                                <span class="text-slate-400 block font-medium">حديثة (0 - 15 يوم)</span>
+                                <strong id="aging-0-15" class="text-emerald-400 text-base font-black">0 د.ع</strong>
+                            </div>
+                            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 space-y-1">
+                                <span class="text-slate-400 block font-medium">متوسطة (16 - 45 يوم)</span>
+                                <strong id="aging-16-45" class="text-amber-400 text-base font-black">0 د.ع</strong>
+                            </div>
+                            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 space-y-1">
+                                <span class="text-rose-300 block font-bold">حرجة ومتجاوزة (>45 يوم)</span>
+                                <strong id="aging-over-45" class="text-rose-400 text-base font-black">0 د.ع</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- تبويب 3: خطط التسديد الشهرية -->
+            <div id="tab-content-plans" class="space-y-6 hidden">
+                <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                <span>📋</span>
+                                <span>إدارة خطط التسديد الشهرية للمذاخر</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">حدد المبالغ المخطط دفعها لكل مذخر خلال الشهر لحساب إجمالي الالتزام</p>
+                        </div>
+                        <input type="month" id="main-plan-month" onchange="loadMainPaymentPlan()" class="border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 font-black focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-white shadow-inner">
+                    </div>
+                    <div class="overflow-x-auto max-h-[60vh] border border-slate-200 dark:border-slate-800 rounded-2xl">
+                        <table class="w-full text-right border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 sticky top-0 font-extrabold z-10">
+                                    <th class="p-3.5">اسم المذخر</th>
+                                    <th class="p-3.5">المديونية الحالية</th>
+                                    <th class="p-3.5 text-rose-600">المستحقة (>45 يوم)</th>
+                                    <th class="p-3.5">المبلغ المخطط تسديده</th>
+                                </tr>
+                            </thead>
+                            <tbody id="main-plan-tbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <span class="font-black text-sm text-purple-600 dark:text-purple-400">
+                            إجمالي الخطة الشهرية: <strong id="main-plan-total" class="text-base font-black text-slate-900 dark:text-white">0 د.ع</strong>
+                        </span>
+                        <button onclick="saveMainPaymentPlan()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 active:scale-95 text-white px-6 py-2.5 rounded-2xl font-black text-xs shadow-lg shadow-purple-600/30 transition-all">
+                            ✓ حفظ خطة الشهر
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- فوتر النظام -->
+    <footer class="max-w-[1440px] mx-auto w-full mt-10 py-5 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400 space-y-1 no-print">
+        <p class="font-medium">نظام إدارة المذاخر والديون والإيرادات - صيدلية أوروك © 2026</p>
+        <p class="font-bold text-indigo-600 dark:text-indigo-400">تصميم وهندسة برمجية خاصة: د. همام 🩺💼</p>
+    </footer>
+
+    <!-- ==================== النوافذ المنبثقة (MODALS) ==================== -->
+
+    <!-- مودال كشف الحساب المطور (Statement Modal) -->
+    <div id="statement-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-5 sm:p-7 rounded-3xl w-full max-w-4xl shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 my-8 max-h-[90vh] flex flex-col transition-all">
+            
+            <div class="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-4 flex-wrap gap-3">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h3 id="statement-heading" class="font-black text-xl text-slate-900 dark:text-white">كشف الحساب</h3>
+                        
+                        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+                            <span class="text-slate-400 font-bold">الهاتف:</span>
+                            <input type="text" id="sup-phone-input" placeholder="رقم الهاتف..." class="border-0 bg-transparent text-xs font-black focus:outline-none dark:text-white w-28">
+                            <button onclick="updateSupplierPhone()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-xl text-[10px] font-bold transition shadow">حفظ</button>
+                            <a id="whatsapp-direct-btn" href="#" target="_blank" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-xl transition shadow flex items-center justify-center text-[10px] font-black gap-1" title="مراسلة المندوب عبر واتساب">
+                                <span>💬</span>
+                                <span>واتساب المندوب</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 flex-wrap text-xs">
+                        <span id="statement-total-debt-chip" class="font-black bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 px-3 py-1 rounded-xl border border-amber-200 dark:border-amber-900">الرصيد الكلي: 0 د.ع</span>
+                        <span id="statement-overdue" class="font-black text-rose-600 bg-rose-50 dark:bg-rose-950/50 px-3 py-1 rounded-xl border border-rose-200 dark:border-rose-900">الديون المستحقة (>45 يوم): 0 د.ع</span>
+                        <span id="statement-category-chip" class="font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-xl border border-indigo-200 dark:border-indigo-900">🏷️ عام</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 items-center no-print flex-wrap">
+                    <button onclick="toggleArchiveActiveSupplier()" id="archive-sup-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1">📂 أرشفة</button>
+                    <button onclick="exportStatementCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1">📊 Excel</button>
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1">🖨️ طباعة</button>
+                    <button onclick="clearZeroBalance()" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition">✨ تصفير</button>
+                    <button onclick="deleteActiveSupplier()" class="bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition">🗑️ حذف</button>
+                    <button onclick="closeStatementModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition">✕ إغلاق</button>
+                </div>
+            </div>
+
+            <div id="printable-statement" class="space-y-4 overflow-y-auto flex-1 pr-1">
+                <div class="hidden print:block font-black text-xl mb-4 border-b pb-2">صيدلية أوروك - كشف حساب مذخر (بإشراف: د. همام)</div>
+                <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl shadow-inner">
+                    <table class="w-full text-right border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-black">
+                                <th class="p-3">التاريخ</th>
+                                <th class="p-3">الأيام المنقضية</th>
+                                <th class="p-3 text-blue-600">القائمة</th>
+                                <th class="p-3 text-emerald-600">التسديد</th>
+                                <th class="p-3 text-amber-600">الخصم</th>
+                                <th class="p-3 text-rose-600">الاسترجاع</th>
+                                <th class="p-3">الملاحظات</th>
+                                <th class="p-3 text-center no-print">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statement-tbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال سند التسديد والقبض الرسمي (Payment Voucher Modal) -->
+    <div id="voucher-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white text-slate-900 p-6 sm:p-8 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-200 space-y-6 my-8">
+            <div class="flex justify-between items-center border-b pb-3 no-print">
+                <h3 class="font-black text-base text-emerald-700 flex items-center gap-2">
+                    <span>🧾</span>
+                    <span>سند تسديد مالي معتمد</span>
+                </h3>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-black shadow transition flex items-center gap-1.5">🖨️ طباعة السند</button>
+                    <button onclick="closeModal('voucher-modal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition">✕ إغلاق</button>
+                </div>
+            </div>
+
+            <!-- محتوى السند القابل للطباعة -->
+            <div id="printable-voucher" class="p-6 border-2 border-slate-800 rounded-2xl space-y-6 bg-white">
+                <div class="flex justify-between items-start border-b-2 border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">صيدلية أوروك</h2>
+                        <p class="text-xs font-bold text-slate-600">سند تسديد وصرف نقدي</p>
+                    </div>
+                    <div class="text-left text-xs space-y-1">
+                        <p class="font-bold">رقم السند: <span id="voucher-num" class="font-black text-indigo-700">#000</span></p>
+                        <p class="font-medium text-slate-500">التاريخ: <span id="voucher-date" class="font-bold"></span></p>
+                        <span class="bg-slate-100 border px-2 py-0.5 rounded text-[10px] font-extrabold inline-block">إشراف: د. همام 🩺</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3 text-xs leading-relaxed">
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-600 font-bold">صُرف للمذخر / المندوب:</span>
+                        <strong id="voucher-supplier" class="text-sm font-black text-slate-900"></strong>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-600 font-bold">المبلغ المسدد نقداً:</span>
+                        <strong id="voucher-amount" class="text-base font-black text-emerald-700"></strong>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-600 font-bold">خصم التسديد:</span>
+                        <strong id="voucher-discount" class="text-sm font-black text-amber-700"></strong>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-600 font-bold">الرصيد المتبقي بذمة الصيدلية:</span>
+                        <strong id="voucher-remaining" class="text-sm font-black text-slate-900"></strong>
+                    </div>
+                    <div class="flex justify-between pb-2">
+                        <span class="text-slate-600 font-bold">الملاحظات:</span>
+                        <span id="voucher-notes" class="font-medium text-slate-700"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-8 pt-8 border-t-2 border-slate-800 text-center text-xs">
+                    <div class="space-y-8">
+                        <p class="font-bold text-slate-600">توقيع واستلام المندوب</p>
+                        <p class="text-slate-400">............................</p>
+                    </div>
+                    <div class="space-y-8">
+                        <p class="font-bold text-slate-600">توقيع وختم الصيدلية</p>
+                        <p class="text-slate-400">............................</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال سجل العمليات والتدقيق (Audit Logs Modal) -->
+    <div id="audit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 my-8 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="font-black text-base text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                    <span>🛡️</span>
+                    <span>سجل التدقيق ومراقبة العمليات (Audit Logs)</span>
+                </h3>
+                <button onclick="closeModal('audit-modal')" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition">✕ إغلاق</button>
+            </div>
+            <div class="overflow-y-auto flex-1 pr-1 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-inner">
+                <table class="w-full text-right border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-black">
+                            <th class="p-3">الوقت والتاريخ</th>
+                            <th class="p-3">نوع الإجراء</th>
+                            <th class="p-3">التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-tbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال استعادة النسخ الاحتياطية (Restore Modal) -->
+    <div id="restore-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <h3 class="font-black text-base border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                <span>🔄</span>
+                <span>استعادة نسخة احتياطية</span>
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                قم باختيار ملف قاعدة بيانات سابق بصيغة <b class="text-indigo-600">.db</b> لاستعادته. سيقوم النظام تلقائياً بأخذ نسخة أمان استباقية من البيانات الحالية قبل الاستبدال.
+            </p>
+            <form onsubmit="handleRestoreDatabase(event)" class="space-y-4 text-xs">
+                <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-4 text-center">
+                    <input type="file" id="restore-file-input" accept=".db" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('restore-modal')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-black shadow">بدء الاستعادة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال سجل الإيرادات (Income Log Modal) -->
+    <div id="income-log-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-xl shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 my-8 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="font-black text-base text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                    <span>📋</span>
+                    <span>سجل إيرادات الدخل اليومي للصيدلية</span>
+                </h3>
+                <button onclick="closeIncomeLogModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition">✕ إغلاق</button>
+            </div>
+            <div class="overflow-y-auto flex-1 pr-1 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-inner">
+                <table class="w-full text-right border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-black">
+                            <th class="p-3">التاريخ</th>
+                            <th class="p-3">المبلغ</th>
+                            <th class="p-3 text-center">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="income-log-tbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال إنشاء قائمة شراء جديدة (New List Modal) -->
+    <div id="list-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-md shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <h3 class="font-black text-base border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                <span>🛒</span>
+                <span>تسجيل قائمة شراء جديدة</span>
+            </h3>
+            <form onsubmit="saveNewList(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">اختر المذخر</label>
+                    <select id="l-supplier" onchange="updateListPreview()" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- اضغط لاختيار المذخر --</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <label class="font-bold text-slate-500">تاريخ القائمة</label>
+                        <span id="l-date-day-name" class="text-[11px] font-black text-indigo-500"></span>
+                    </div>
+                    <input type="date" id="l-date" onchange="updateDayName(this, 'l-date-day-name')" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">مبلغ القائمة (د.ع)</label>
+                        <input type="text" id="l-amount" onfocus="clearZero(this)" oninput="formatNumberInput(this); updateListPreview();" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-blue-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">الاسترجاع إن وجد (د.ع)</label>
+                        <input type="text" id="l-return" onfocus="clearZero(this)" oninput="formatNumberInput(this); updateListPreview();" value="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-amber-600 text-sm">
+                    </div>
+                </div>
+                <div class="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 p-3 rounded-2xl text-blue-900 dark:text-blue-300 space-y-1">
+                    <div class="flex justify-between"><span>الرصيد السابق:</span><span id="prev-bal" class="font-bold">0 د.ع</span></div>
+                    <div class="flex justify-between"><span>الرصيد بعد الإضافة:</span><span id="current-bal" class="font-black text-blue-700 dark:text-blue-300">0 د.ع</span></div>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">ملاحظات / رقم القائمة</label>
+                    <input type="text" id="l-notes" placeholder="رقم القائمة أو ملاحظات..." class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('list-modal')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black shadow">حفظ القائمة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال تسجيل تسديد (New Payment Modal) -->
+    <div id="pay-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-md shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <h3 class="font-black text-base border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                <span>💳</span>
+                <span>تسجيل تسديد لمذخر</span>
+            </h3>
+            <form onsubmit="savePayment(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">اختر المذخر</label>
+                    <select id="p-supplier" onchange="calcPaymentPreview()" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">-- اضغط لاختيار المذخر --</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <label class="font-bold text-slate-500">تاريخ التسديد</label>
+                        <span id="p-date-day-name" class="text-[11px] font-black text-indigo-500"></span>
+                    </div>
+                    <input type="date" id="p-date" onchange="updateDayName(this, 'p-date-day-name')" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">مبلغ التسديد النقدي (د.ع)</label>
+                        <input type="text" id="p-amount" onfocus="clearZero(this)" oninput="formatNumberInput(this); calcPaymentPreview();" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-emerald-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">خصم التسديد إن وجد (د.ع)</label>
+                        <input type="text" id="p-discount" onfocus="clearZero(this)" oninput="formatNumberInput(this); calcPaymentPreview();" value="0" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black text-amber-600 text-sm">
+                    </div>
+                </div>
+                <div class="bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 p-3 rounded-2xl text-emerald-900 dark:text-emerald-300 space-y-1">
+                    <div class="flex justify-between"><span>المديونية قبل التسديد:</span><span id="p-prev-debt" class="font-bold">0 د.ع</span></div>
+                    <div class="flex justify-between"><span>المديونية بعد التسديد:</span><span id="p-after-debt" class="font-black text-emerald-700 dark:text-emerald-300">0 د.ع</span></div>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">ملاحظات</label>
+                    <input type="text" id="p-notes" placeholder="ملاحظات التسديد..." class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('pay-modal')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black shadow">تثبيت التسديد</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال إضافة مذخر جديد (Add Supplier Modal) -->
+    <div id="add-sup-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-sm shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <h3 class="font-black text-base border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <span>➕</span>
+                <span>إضافة مذخر جديد للنظام</span>
+            </h3>
+            <form onsubmit="addNewSupplier(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">اسم المذخر</label>
+                    <input type="text" id="new-sup-name" placeholder="اسم المذخر..." required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">التصنيف والنشاط</label>
+                    <select id="new-sup-category" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold">
+                        <option value="أدوية عامة">أدوية عامة</option>
+                        <option value="مستلزمات طبية">مستلزمات طبية</option>
+                        <option value="تجميل وعناية">تجميل وعناية</option>
+                        <option value="حليب وأغذية">حليب وأغذية</option>
+                        <option value="وكيل حصري">وكيل حصري</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">رقم هاتف المندوب / المسؤول</label>
+                    <input type="text" id="new-sup-phone" placeholder="07xxxxxxxxx" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('add-sup-modal')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black shadow">إضافة المذخر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال تعديل الحركة المالية (Edit Transaction Modal) -->
+    <div id="edit-trans-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 rounded-3xl w-full max-w-md shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <h3 class="font-black text-base border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <span>✏️</span>
+                <span>تعديل الحركة المالية</span>
+            </h3>
+            <form onsubmit="saveEditedTransaction(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="edit-t-id">
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">التاريخ</label>
+                    <input type="date" id="edit-t-date" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">القائمة (د.ع)</label>
+                        <input type="text" id="edit-t-list" onfocus="clearZero(this)" oninput="formatNumberInput(this)" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">التسديد (د.ع)</label>
+                        <input type="text" id="edit-t-pay" onfocus="clearZero(this)" oninput="formatNumberInput(this)" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">الخصم (د.ع)</label>
+                        <input type="text" id="edit-t-disc" onfocus="clearZero(this)" oninput="formatNumberInput(this)" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1 text-slate-500">الاسترجاع (د.ع)</label>
+                        <input type="text" id="edit-t-ret" onfocus="clearZero(this)" oninput="formatNumberInput(this)" value="0" required class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-black">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-500">ملاحظات</label>
+                    <input type="text" id="edit-t-notes" class="w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2.5 bg-slate-50 dark:bg-slate-800 font-medium">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('edit-trans-modal')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black shadow">حفظ التعديل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== المنطق البرمجي (JavaScript) ==================== -->
+    <script>
+        let suppliersCache = [];
+        let allTransactionsCache = [];
+        let activeSupId = null;
+        let activeSupName = '';
+        let activeSupRowsCache = [];
+        let currentFilterStatus = 'all';
+        let currentViewMode = localStorage.getItem('uruk_view_mode') || 'cards';
+        let globalDebtGlobalVar = 0;
+        let incomeRecords = {};
+        let trendChartInstance = null;
+        let donutChartInstance = null;
+
+        const daysNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        function updateDayName(dateInput, spanId) {
+            const val = dateInput.value;
+            const span = document.getElementById(spanId);
+            if (!span) return;
+            if (val) {
+                const parts = val.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    span.innerText = `(${daysNames[d.getDay()]})`;
+                    return;
+                }
+            }
+            span.innerText = '';
+        }
+
+        function formatNumberInput(input) {
+            let val = input.value.replace(/[^\d]/g, '');
+            if (val === '') {
+                input.value = '';
+                return;
+            }
+            input.value = Number(val).toLocaleString('en-US');
+        }
+
+        function parseFormattedNumber(val) {
+            if (!val) return 0;
+            return parseFloat(String(val).replace(/,/g, '')) || 0;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (localStorage.getItem('uruk_dark') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.slice(0, 7);
+            
+            document.getElementById('income-date').value = today;
+            updateDayName(document.getElementById('income-date'), 'income-day-name');
+
+            document.getElementById('l-date').value = today;
+            updateDayName(document.getElementById('l-date'), 'l-date-day-name');
+
+            document.getElementById('p-date').value = today;
+            updateDayName(document.getElementById('p-date'), 'p-date-day-name');
+
+            document.getElementById('main-plan-month').value = currentMonth;
+            document.getElementById('pdf-report-date').innerText = today;
+            
+            setViewMode(currentViewMode, false);
+            await loadIncomeFromDatabase();
+            await loadSuppliers();
+        });
+
+        // --- التبديل بين عرض البطاقات والجدول ---
+        function setViewMode(mode, save = true) {
+            currentViewMode = mode;
+            if (save) localStorage.setItem('uruk_view_mode', mode);
+
+            const cardsView = document.getElementById('suppliers-cards-view');
+            const tableView = document.getElementById('suppliers-table-view');
+            const cardsBtn = document.getElementById('view-mode-cards-btn');
+            const tableBtn = document.getElementById('view-mode-table-btn');
+
+            if (mode === 'table') {
+                cardsView.classList.add('hidden');
+                tableView.classList.remove('hidden');
+                tableBtn.className = "px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow transition-all flex items-center gap-1";
+                cardsBtn.className = "px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all flex items-center gap-1";
+            } else {
+                tableView.classList.add('hidden');
+                cardsView.classList.remove('hidden');
+                cardsBtn.className = "px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow transition-all flex items-center gap-1";
+                tableBtn.className = "px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all flex items-center gap-1";
+            }
+        }
+
+        // --- إدارة الدخل اليومي ---
+        async function loadIncomeFromDatabase() {
+            try {
+                const res = await fetch('/api/income');
+                if (res.ok) {
+                    const rows = await res.json();
+                    incomeRecords = {};
+                    rows.forEach(r => {
+                        incomeRecords[r.date] = r.amount;
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading income:', err);
+            }
+        }
+
+        async function saveDailyIncome(e) {
+            e.preventDefault();
+            const dateStr = document.getElementById('income-date').value;
+            const amount = parseFormattedNumber(document.getElementById('income-amount').value);
+            if (!dateStr || amount <= 0) {
+                showToast('الرجاء إدخال تاريخ ومبلغ صحيح', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/income', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: dateStr, amount })
+                });
+
+                if (res.ok) {
+                    incomeRecords[dateStr] = amount;
+                    document.getElementById('income-amount').value = '0';
+                    showToast('✅ تم حفظ الدخل اليومي في قاعدة البيانات بنجاح');
+                    await loadSuppliers();
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'خطأ في حفظ الدخل', 'error');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        function openIncomeLogModal() {
+            renderIncomeLogTable();
+            document.getElementById('income-log-modal').classList.remove('hidden');
+        }
+
+        function closeIncomeLogModal() {
+            document.getElementById('income-log-modal').classList.add('hidden');
+        }
+
+        function renderIncomeLogTable() {
+            const tbody = document.getElementById('income-log-tbody');
+            tbody.innerHTML = '';
+
+            const sortedDates = Object.keys(incomeRecords).sort().reverse();
+            if (sortedDates.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">لا توجد سجلات دخل مسجلة</td></tr>`;
+                return;
+            }
+
+            sortedDates.forEach(dateStr => {
+                const amount = incomeRecords[dateStr] || 0;
+                let dayName = '';
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    dayName = daysNames[d.getDay()] || '';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                        <td class="p-3 font-bold">${dateStr} ${dayName ? `(${dayName})` : ''}</td>
+                        <td class="p-3 font-black text-emerald-600 dark:text-emerald-400">${Number(amount).toLocaleString()} د.ع</td>
+                        <td class="p-3 text-center flex justify-center gap-1.5">
+                            <button onclick="editIncomeRecord('${dateStr}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-xl text-xs font-bold transition">تعديل</button>
+                            <button onclick="deleteIncomeRecord('${dateStr}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-xl text-xs font-bold transition">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function deleteIncomeRecord(dateStr) {
+            if (!confirm(`حذف سجل دخل يوم ${dateStr}؟`)) return;
+            try {
+                const res = await fetch(`/api/income/${dateStr}`, { method: 'DELETE' });
+                if (res.ok) {
+                    delete incomeRecords[dateStr];
+                    renderIncomeLogTable();
+                    await loadSuppliers();
+                    showToast('تم حذف سجل الدخل بنجاح');
+                }
+            } catch (e) {
+                showToast('خطأ في حذف الدخل', 'error');
+            }
+        }
+
+        async function editIncomeRecord(dateStr) {
+            const currentVal = incomeRecords[dateStr] || 0;
+            const newVal = prompt(`تعديل مبلغ دخل يوم ${dateStr}:`, currentVal);
+            if (newVal !== null) {
+                const parsed = parseFormattedNumber(newVal);
+                if (parsed >= 0) {
+                    try {
+                        const res = await fetch('/api/income', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ date: dateStr, amount: parsed })
+                        });
+                        if (res.ok) {
+                            incomeRecords[dateStr] = parsed;
+                            renderIncomeLogTable();
+                            await loadSuppliers();
+                            showToast('تم تحديث سجل الدخل بنجاح');
+                        }
+                    } catch (e) {
+                        showToast('خطأ في تحديث الدخل', 'error');
+                    }
+                } else {
+                    showToast('قيمة غير صالحة', 'error');
+                }
+            }
+        }
+
+        function switchTab(tabName) {
+            document.getElementById('tab-content-suppliers').classList.add('hidden');
+            document.getElementById('tab-content-analytics').classList.add('hidden');
+            document.getElementById('tab-content-plans').classList.add('hidden');
+
+            const inactiveBtnClass = "px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center gap-2 flex-shrink-0";
+            const activeBtnClass = "px-5 py-3 rounded-2xl text-xs sm:text-sm font-black bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 flex-shrink-0";
+
+            document.getElementById('tab-btn-suppliers').className = inactiveBtnClass;
+            document.getElementById('tab-btn-analytics').className = inactiveBtnClass;
+            document.getElementById('tab-btn-plans').className = inactiveBtnClass;
+
+            if (tabName === 'suppliers') {
+                document.getElementById('tab-content-suppliers').classList.remove('hidden');
+                document.getElementById('tab-btn-suppliers').className = activeBtnClass;
+            } else if (tabName === 'analytics') {
+                document.getElementById('tab-content-analytics').classList.remove('hidden');
+                document.getElementById('tab-btn-analytics').className = activeBtnClass;
+                renderAnalyticsCharts();
+            } else if (tabName === 'plans') {
+                document.getElementById('tab-content-plans').classList.remove('hidden');
+                document.getElementById('tab-btn-plans').className = activeBtnClass;
+                loadMainPaymentPlan();
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('uruk_dark', isDark);
+            if (trendChartInstance || donutChartInstance) {
+                renderAnalyticsCharts();
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600 border-emerald-500' : 'bg-rose-600 border-rose-500';
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-2xl shadow-2xl text-xs font-black transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-2.5 border`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        function clearZero(input) {
+            if (input.value === '0') input.value = '';
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function togglePdfReportBox() {
+            const box = document.getElementById('pdf-report-box');
+            if (box.classList.contains('hidden')) {
+                await openPdfReportBox();
+            } else {
+                closePdfReportBox();
+            }
+        }
+
+        function closePdfReportBox() {
+            document.getElementById('pdf-report-box').classList.add('hidden');
+        }
+
+        function getDaysPassed(dateStr) {
+            if (!dateStr) return 0;
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return 0;
+            const txDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const now = new Date();
+            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const diffTime = todayDate - txDate;
+            return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+        }
+
+        function calculateSupplierOverdue(rows) {
+            let totalPaymentsPool = 0;
+            rows.forEach(r => {
+                totalPaymentsPool += (r.payment_amount || 0) + (r.discount_amount || 0) + (r.return_amount || 0);
+            });
+
+            const lists = rows.filter(r => (r.list_amount || 0) > 0).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            let overdueSum = 0;
+            lists.forEach(l => {
+                let listNet = l.list_amount || 0;
+                if (totalPaymentsPool >= listNet) {
+                    totalPaymentsPool -= listNet;
+                    listNet = 0;
+                } else {
+                    listNet -= totalPaymentsPool;
+                    totalPaymentsPool = 0;
+                }
+                if (listNet > 0 && l.date) {
+                    const diffDays = getDaysPassed(l.date);
+                    if (diffDays > 45) overdueSum += listNet;
+                }
+            });
+            return overdueSum;
+        }
+
+        async function openPdfReportBox() {
+            const dateFrom = document.getElementById('report-date-from').value;
+            const dateTo = document.getElementById('report-date-to').value;
+
+            let filteredListsSum = 0;
+            let filteredPaysSum = 0;
+            let filteredDiscsSum = 0;
+            let filteredRetsSum = 0;
+            let overallDebtSum = 0;
+            let overallOverdueSum = 0;
+            let filteredIncomeSum = 0;
+
+            Object.keys(incomeRecords).forEach(dKey => {
+                const matchFrom = !dateFrom || dKey >= dateFrom;
+                const matchTo = !dateTo || dKey <= dateTo;
+                if (matchFrom && matchTo) {
+                    filteredIncomeSum += (incomeRecords[dKey] || 0);
+                }
+            });
+
+            const txBySupplier = {};
+            allTransactionsCache.forEach(t => {
+                if (!txBySupplier[t.supplier_id]) txBySupplier[t.supplier_id] = [];
+                txBySupplier[t.supplier_id].push(t);
+            });
+
+            const pdfTbody = document.getElementById('pdf-suppliers-tbody');
+            pdfTbody.innerHTML = '';
+
+            for (let s of suppliersCache) {
+                overallDebtSum += s.remaining_balance;
+                const rows = txBySupplier[s.id] || [];
+                
+                const supOverdue = calculateSupplierOverdue(rows);
+                overallOverdueSum += supOverdue;
+
+                let supListPeriod = 0;
+                let supPayPeriod = 0;
+
+                rows.forEach(r => {
+                    const rDate = r.date || '';
+                    const matchFrom = !dateFrom || rDate >= dateFrom;
+                    const matchTo = !dateTo || rDate <= dateTo;
+
+                    if (matchFrom && matchTo) {
+                        const l = r.list_amount || 0;
+                        const p = r.payment_amount || 0;
+                        const d = r.discount_amount || 0;
+                        const ret = r.return_amount || 0;
+
+                        filteredListsSum += l;
+                        filteredPaysSum += p;
+                        filteredDiscsSum += d;
+                        filteredRetsSum += ret;
+
+                        supListPeriod += l;
+                        supPayPeriod += p;
+                    }
+                });
+
+                pdfTbody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-3 font-bold">${s.name}</td>
+                        <td class="p-3 text-blue-600">${supListPeriod.toLocaleString()} د.ع</td>
+                        <td class="p-3 text-emerald-600">${supPayPeriod.toLocaleString()} د.ع</td>
+                        <td class="p-3 font-black text-amber-600">${s.remaining_balance.toLocaleString()} د.ع</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('pdf-val-lists').innerText = filteredListsSum.toLocaleString() + ' د.ع';
+            document.getElementById('pdf-val-pays').innerText = filteredPaysSum.toLocaleString() + ' د.ع';
+            document.getElementById('pdf-val-discs').innerText = filteredDiscsSum.toLocaleString() + ' د.ع';
+            document.getElementById('pdf-val-rets').innerText = filteredRetsSum.toLocaleString() + ' د.ع';
+            
+            document.getElementById('pdf-val-total-debt').innerText = overallDebtSum.toLocaleString() + ' د.ع';
+            document.getElementById('pdf-val-total-overdue').innerText = overallOverdueSum.toLocaleString() + ' د.ع';
+            document.getElementById('pdf-val-total-income').innerText = filteredIncomeSum.toLocaleString() + ' د.ع';
+
+            const box = document.getElementById('pdf-report-box');
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- تحميل المذاخر وحساب الإحصائيات وبناء الواجهة بكفاءة وسرعة فائقة ---
+        async function loadSuppliers() {
+            try {
+                const [supRes, txRes] = await Promise.all([
+                    fetch('/api/suppliers'),
+                    fetch('/api/all-transactions')
+                ]);
+
+                suppliersCache = await supRes.json();
+                allTransactionsCache = await txRes.json();
+
+                const txBySupplier = {};
+                allTransactionsCache.forEach(t => {
+                    if (!txBySupplier[t.supplier_id]) txBySupplier[t.supplier_id] = [];
+                    txBySupplier[t.supplier_id].push(t);
+                });
+
+                suppliersCache.sort((a, b) => b.total_lists - a.total_lists);
+
+                const selectList = document.getElementById('l-supplier');
+                const selectPay = document.getElementById('p-supplier');
+                if (selectList) selectList.innerHTML = '<option value="">-- اضغط لاختيار المذخر من القائمة --</option>';
+                if (selectPay) selectPay.innerHTML = '<option value="">-- اضغط لاختيار المذخر من القائمة --</option>';
+
+                let globalDebt = 0;
+                let globalOverdue = 0;
+                let criticalCount = 0;
+
+                let totalDiscountsAll = 0;
+                let totalListsAll = 0;
+                let totalReturnsAll = 0;
+                let totalPaymentsAll = 0;
+
+                let currentMonthListsTotal = 0;
+                let currentMonthPaysTotal = 0;
+                let currentMonthIncomeTotal = 0;
+
+                let aging0to15 = 0;
+                let aging16to45 = 0;
+                let agingOver45 = 0;
+
+                const currentMonthStr = new Date().toISOString().slice(0, 7);
+
+                let currentMonthListsDetailsHTML = '';
+                let currentMonthPaysDetailsHTML = '';
+
+                let tierZero = 0;
+                let tierUnder1M = 0;
+                let tier1to5M = 0;
+                let tier5to10M = 0;
+                let tier10to15M = 0;
+                let tierAbove15M = 0;
+
+                Object.keys(incomeRecords).forEach(dateKey => {
+                    if (dateKey.startsWith(currentMonthStr)) {
+                        currentMonthIncomeTotal += (incomeRecords[dateKey] || 0);
+                    }
+                });
+
+                const grid = document.getElementById('suppliers-cards-grid');
+                const tableTbody = document.getElementById('suppliers-table-tbody');
+                if (grid) grid.innerHTML = '';
+                if (tableTbody) tableTbody.innerHTML = '';
+
+                for (let s of suppliersCache) {
+                    if (!s.is_archived) {
+                        globalDebt += s.remaining_balance;
+                    }
+                    totalDiscountsAll += s.total_discounts;
+                    totalListsAll += s.total_lists;
+                    totalReturnsAll += s.total_returns;
+                    totalPaymentsAll += s.total_payments;
+
+                    const bal = s.remaining_balance;
+                    if (bal === 0) tierZero++;
+                    else if (bal < 1000000) tierUnder1M++;
+                    else if (bal >= 1000000 && bal < 5000000) tier1to5M++;
+                    else if (bal >= 5000000 && bal < 10000000) tier5to10M++;
+                    else if (bal >= 10000000 && bal < 15000000) tier10to15M++;
+                    else tierAbove15M++;
+
+                    const rows = txBySupplier[s.id] || [];
+                    
+                    let supMonthList = 0;
+                    let supMonthPay = 0;
+
+                    rows.forEach(r => {
+                        if (r.date && r.date.startsWith(currentMonthStr)) {
+                            const lAmt = r.list_amount || 0;
+                            const pAmt = (r.payment_amount || 0) + (r.discount_amount || 0) + (r.return_amount || 0);
+                            if (lAmt > 0) supMonthList += lAmt;
+                            if (pAmt > 0) supMonthPay += pAmt;
+                        }
+                    });
+
+                    if (supMonthList > 0) {
+                        currentMonthListsTotal += supMonthList;
+                        currentMonthListsDetailsHTML += `
+                            <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/70 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold text-slate-700 dark:text-slate-300">${s.name}</span>
+                                <span class="font-black text-blue-600 dark:text-blue-400">${supMonthList.toLocaleString()} د.ع</span>
+                            </div>
+                        `;
+                    }
+
+                    if (supMonthPay > 0) {
+                        currentMonthPaysTotal += supMonthPay;
+                        currentMonthPaysDetailsHTML += `
+                            <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/70 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold text-slate-700 dark:text-slate-300">${s.name}</span>
+                                <span class="font-black text-emerald-600 dark:text-emerald-400">${supMonthPay.toLocaleString()} د.ع</span>
+                            </div>
+                        `;
+                    }
+
+                    const supOverdue = calculateSupplierOverdue(rows);
+                    if (!s.is_archived) {
+                        globalOverdue += supOverdue;
+                        if (supOverdue > 0) criticalCount++;
+                    }
+
+                    // تحليل أعمار الديون
+                    let paymentsPool = (s.total_payments || 0) + (s.total_discounts || 0) + (s.total_returns || 0);
+                    const sortedLists = rows.filter(r => (r.list_amount || 0) > 0).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                    sortedLists.forEach(l => {
+                        let net = l.list_amount;
+                        if (paymentsPool >= net) {
+                            paymentsPool -= net;
+                            net = 0;
+                        } else {
+                            net -= paymentsPool;
+                            paymentsPool = 0;
+                        }
+                        if (net > 0 && l.date) {
+                            const days = getDaysPassed(l.date);
+                            if (days <= 15) aging0to15 += net;
+                            else if (days <= 45) aging16to45 += net;
+                            else agingOver45 += net;
+                        }
+                    });
+
+                    if (!s.is_archived) {
+                        if (selectList) selectList.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+                        if (selectPay) selectPay.innerHTML += `<option value="${s.id}">${s.name} (دين: ${s.remaining_balance.toLocaleString()})</option>`;
+                    }
+
+                    let ratingBadge = '<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 px-2 py-0.5 rounded-lg font-black text-[10px] border border-emerald-200 dark:border-emerald-900">سليم ✨</span>';
+                    let healthColor = 'bg-emerald-500';
+                    let statusType = 'normal';
+
+                    if (s.is_archived) {
+                        ratingBadge = '<span class="bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 px-2 py-0.5 rounded-lg font-bold text-[10px] border border-purple-200">مؤرشف 📂</span>';
+                        healthColor = 'bg-purple-500';
+                        statusType = 'archived';
+                    } else if (supOverdue > 0 || s.remaining_balance > 5000000) {
+                        ratingBadge = '<span class="bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 px-2 py-0.5 rounded-lg font-black text-[10px] border border-rose-200 dark:border-rose-900 animate-pulse">حرج ⚠️</span>';
+                        healthColor = 'bg-rose-500';
+                        statusType = 'critical';
+                    } else if (s.remaining_balance === 0) {
+                        ratingBadge = '<span class="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 px-2 py-0.5 rounded-lg font-bold text-[10px]">مصفّر 0</span>';
+                        healthColor = 'bg-slate-400';
+                        statusType = 'zero';
+                    }
+
+                    const progressPercent = Math.min(100, Math.max(8, (s.remaining_balance / 10000000) * 100));
+
+                    // بناء كارت المذخر الحديث
+                    if (grid) {
+                        grid.innerHTML += `
+                            <div onclick="selectSupplier(${s.id}, '${s.name}')" data-supname="${s.name}" data-phone="${s.phone || ''}" data-category="${s.category || 'أدوية عامة'}" data-statustype="${statusType}" class="supplier-card group bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-indigo-500 dark:hover:border-indigo-500 cursor-pointer transition-all duration-300 space-y-3 flex flex-col justify-between relative overflow-hidden">
+                                <div>
+                                    <div class="flex justify-between items-start gap-1 mb-1.5">
+                                        <div class="min-w-0">
+                                            <h4 class="font-black text-sm tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate" title="${s.name}">${s.name}</h4>
+                                            <span class="text-[10px] text-slate-400 font-bold block">${s.category || 'أدوية عامة'}</span>
+                                        </div>
+                                        ${ratingBadge}
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="${healthColor} h-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-col gap-1.5 text-xs">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 font-medium">المديونية:</span>
+                                        <span class="font-black text-amber-600 dark:text-amber-400 text-sm">${s.remaining_balance.toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-rose-400 font-medium">مستحقة (>45):</span>
+                                        <span class="font-bold ${supOverdue > 0 ? 'text-rose-600 font-black' : 'text-slate-400'}">${supOverdue.toLocaleString()}</span>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[11px] text-indigo-600 dark:text-indigo-400 font-black group-hover:translate-x-1 transition-transform">
+                                    <span>كشف الحساب 📄</span>
+                                    <span>←</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // بناء صف الجدول
+                    if (tableTbody) {
+                        tableTbody.innerHTML += `
+                            <tr onclick="selectSupplier(${s.id}, '${s.name}')" data-supname="${s.name}" data-phone="${s.phone || ''}" data-category="${s.category || 'أدوية عامة'}" data-statustype="${statusType}" class="supplier-row hover:bg-indigo-50/50 dark:hover:bg-slate-800/50 cursor-pointer transition">
+                                <td class="p-3.5 font-black text-slate-900 dark:text-white">${s.name}</td>
+                                <td class="p-3.5 text-slate-500 font-bold"><span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg">${s.category || 'أدوية عامة'}</span></td>
+                                <td class="p-3.5 text-slate-500 font-bold">${s.phone || '-'}</td>
+                                <td class="p-3.5 text-blue-600 font-bold">${s.total_lists.toLocaleString()}</td>
+                                <td class="p-3.5 text-emerald-600 font-bold">${s.total_payments.toLocaleString()}</td>
+                                <td class="p-3.5 text-amber-600">${s.total_discounts.toLocaleString()}</td>
+                                <td class="p-3.5 font-black text-amber-600 dark:text-amber-400 text-sm">${s.remaining_balance.toLocaleString()}</td>
+                                <td class="p-3.5 font-black ${supOverdue > 0 ? 'text-rose-600' : 'text-slate-400'}">${supOverdue.toLocaleString()}</td>
+                                <td class="p-3.5 text-center">${ratingBadge}</td>
+                                <td class="p-3.5 text-center">
+                                    <button class="bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-xl font-black text-[11px] hover:bg-indigo-100 transition">كشف 📄</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                globalDebtGlobalVar = globalDebt;
+                document.getElementById('plan-current-total-debt').innerText = globalDebt.toLocaleString() + ' د.ع';
+                calculateDebtPlan();
+
+                document.getElementById('current-month-income-box').innerText = currentMonthIncomeTotal.toLocaleString() + ' د.ع';
+                document.getElementById('global-month-income-display').innerText = currentMonthIncomeTotal.toLocaleString() + ' د.ع';
+
+                const todayDayNum = new Date().getDate();
+                const dailyAvg = todayDayNum > 0 ? Math.round(currentMonthIncomeTotal / todayDayNum) : 0;
+                const coverageRate = currentMonthIncomeTotal > 0 ? Math.round((currentMonthPaysTotal / currentMonthIncomeTotal) * 100) : 0;
+                const netCashFlow = currentMonthIncomeTotal - currentMonthPaysTotal;
+
+                // حساب مؤشر DPO (متوسط فترة السداد بالأيام)
+                const dpoDays = totalListsAll > 0 ? Math.round((globalDebt / totalListsAll) * 365) : 0;
+                document.getElementById('stat-dpo').innerText = `${dpoDays} يوم`;
+                document.getElementById('stat-total-discounts').innerText = `${totalDiscountsAll.toLocaleString()} د.ع`;
+                document.getElementById('stat-total-returns').innerText = `${totalReturnsAll.toLocaleString()} د.ع`;
+
+                document.getElementById('stat-daily-avg-card').innerText = dailyAvg.toLocaleString() + ' د.ع';
+                document.getElementById('stat-coverage-card').innerText = coverageRate + '%';
+                document.getElementById('global-coverage-display').innerText = coverageRate + '%';
+                document.getElementById('stat-net-cash').innerText = netCashFlow.toLocaleString() + ' د.ع';
+                document.getElementById('stat-net-cash-card').innerText = netCashFlow.toLocaleString() + ' د.ع';
+
+                document.getElementById('aging-0-15').innerText = aging0to15.toLocaleString() + ' د.ع';
+                document.getElementById('aging-16-45').innerText = aging16to45.toLocaleString() + ' د.ع';
+                document.getElementById('aging-over-45').innerText = agingOver45.toLocaleString() + ' د.ع';
+
+                const activeCount = suppliersCache.filter(s => !s.is_archived).length;
+                document.getElementById('total-suppliers-count').innerText = activeCount;
+                document.getElementById('suppliers-badge-count').innerText = `${activeCount} نشط`;
+
+                document.getElementById('suppliers-tier-stats').innerHTML = `
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[10px] font-bold">صفرية (0)</span>
+                        <strong class="text-emerald-500 text-base font-black">${tierZero}</strong>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[10px] font-bold">تحت مليون</span>
+                        <strong class="text-blue-500 text-base font-black">${tierUnder1M}</strong>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[10px] font-bold">1 إلى 5 مليون</span>
+                        <strong class="text-indigo-500 text-base font-black">${tier1to5M}</strong>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[10px] font-bold">5 إلى 10 مليون</span>
+                        <strong class="text-amber-500 text-base font-black">${tier5to10M}</strong>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[10px] font-bold">10 إلى 15 مليون</span>
+                        <strong class="text-orange-500 text-base font-black">${tier10to15M}</strong>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                        <span class="block text-slate-400 text-[10px] font-bold">أكثر من 15 مليون</span>
+                        <strong class="text-rose-500 text-base font-black">${tierAbove15M}</strong>
+                    </div>
+                `;
+
+                document.getElementById('current-month-lists-total').innerText = currentMonthListsTotal.toLocaleString() + ' د.ع';
+                document.getElementById('current-month-lists-details').innerHTML = currentMonthListsDetailsHTML || '<p class="text-slate-400 text-center py-4">لا توجد سحوبات هذا الشهر</p>';
+
+                document.getElementById('current-month-pays-total').innerText = currentMonthPaysTotal.toLocaleString() + ' د.ع';
+                document.getElementById('current-month-pays-details').innerHTML = currentMonthPaysDetailsHTML || '<p class="text-slate-400 text-center py-4">لا توجد تسديدات هذا الشهر</p>';
+
+                const smartBar = document.getElementById('smart-alerts-bar');
+                if (criticalCount > 0) {
+                    smartBar.classList.remove('hidden');
+                    document.getElementById('smart-alerts-text').innerText = `تنبيه ذكي: يوجد (${criticalCount}) مذخر تجاوزت مدة ديونها 45 يوماً وتحتاج للمتابعة الفورية.`;
+                } else {
+                    smartBar.classList.add('hidden');
+                }
+
+                document.getElementById('global-debt-display').innerText = globalDebt.toLocaleString() + ' د.ع';
+                document.getElementById('global-overdue-display').innerText = globalOverdue.toLocaleString() + ' د.ع';
+
+                applyFilter();
+            } catch (err) {
+                console.error('Error in loadSuppliers:', err);
+                showToast('خطأ في تحميل بيانات المذاخر', 'error');
+            }
+        }
+
+        // --- الرسوم البيانية التفاعلية Chart.js ---
+        function renderAnalyticsCharts() {
+            // 1. توليد بيانات آخر 6 أشهر
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                months.push(d.toISOString().slice(0, 7));
+            }
+
+            const listsData = months.map(m => {
+                return allTransactionsCache.filter(t => (t.date || '').startsWith(m)).reduce((sum, t) => sum + (t.list_amount || 0), 0);
+            });
+
+            const paysData = months.map(m => {
+                return allTransactionsCache.filter(t => (t.date || '').startsWith(m)).reduce((sum, t) => sum + (t.payment_amount || 0) + (t.discount_amount || 0), 0);
+            });
+
+            const incomeData = months.map(m => {
+                return Object.keys(incomeRecords).filter(k => k.startsWith(m)).reduce((sum, k) => sum + (incomeRecords[k] || 0), 0);
+            });
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+            const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+            // Trend Chart
+            const trendCtx = document.getElementById('monthlyTrendChart');
+            if (trendCtx) {
+                if (trendChartInstance) trendChartInstance.destroy();
+                trendChartInstance = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: months.map(m => {
+                            const p = m.split('-');
+                            return `${p[1]}/${p[0].slice(2)}`;
+                        }),
+                        datasets: [
+                            {
+                                label: 'سحوبات المذاخر 🛒',
+                                data: listsData,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                                borderWidth: 2.5
+                            },
+                            {
+                                label: 'تسديدات المذاخر 💳',
+                                data: paysData,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                                borderWidth: 2.5
+                            },
+                            {
+                                label: 'إيرادات الصيدلية 💵',
+                                data: incomeData,
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.05)',
+                                tension: 0.3,
+                                borderDash: [5, 5],
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: textColor, font: { family: 'Cairo', weight: 'bold' } }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                            y: { 
+                                ticks: { 
+                                    color: textColor,
+                                    callback: (val) => (val / 1000000).toFixed(1) + 'M'
+                                },
+                                grid: { color: gridColor } 
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Top Creditors Donut Chart
+            const top5 = [...suppliersCache].filter(s => !s.is_archived && s.remaining_balance > 0).sort((a, b) => b.remaining_balance - a.remaining_balance).slice(0, 5);
+            const donutCtx = document.getElementById('topCreditorsChart');
+            const legendBox = document.getElementById('top-creditors-legend');
+
+            if (donutCtx && top5.length > 0) {
+                if (donutChartInstance) donutChartInstance.destroy();
+                const colors = ['#f43f5e', '#f59e0b', '#6366f1', '#10b981', '#06b6d4'];
+                donutChartInstance = new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: top5.map(s => s.name),
+                        datasets: [{
+                            data: top5.map(s => s.remaining_balance),
+                            backgroundColor: colors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                if (legendBox) {
+                    legendBox.innerHTML = top5.map((s, idx) => `
+                        <div class="flex justify-between items-center">
+                            <span class="flex items-center gap-1.5 truncate">
+                                <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${colors[idx]}"></span>
+                                <b>${s.name}</b>
+                            </span>
+                            <span class="font-extrabold">${(s.remaining_balance / 1000000).toFixed(2)}M د.ع</span>
+                        </div>
+                    `).join('');
+                }
+            } else if (legendBox) {
+                legendBox.innerHTML = '<p class="text-center text-slate-400 py-4">لا توجد ديون قائمة</p>';
+            }
+        }
+
+        function calculateDebtPlan() {
+            const targetDebt = parseFormattedNumber(document.getElementById('plan-target-debt').value);
+            const monthlyList = parseFormattedNumber(document.getElementById('plan-monthly-list').value);
+            const monthlyPay = parseFormattedNumber(document.getElementById('plan-monthly-pay').value);
+            const resBox = document.getElementById('plan-result-box');
+
+            if (document.getElementById('plan-target-debt').value.trim() === '') {
+                resBox.innerHTML = 'الرجاء إدخال سقف المديونية المراد الوصول إليه لحساب الخطة.';
+                return;
+            }
+
+            const netMonthlyChange = monthlyList - monthlyPay;
+            const diff = globalDebtGlobalVar - targetDebt;
+
+            if (diff <= 0) {
+                resBox.innerHTML = `🎉 مبروك! إجمالي المديونية الحالية (${globalDebtGlobalVar.toLocaleString()} د.ع) وصل بالفعل أو أقل من السقف المستهدف (${targetDebt.toLocaleString()} د.ع).`;
+                return;
+            }
+
+            if (netMonthlyChange >= 0) {
+                resBox.innerHTML = `⚠️ تنبيه: السحب الشهري المتوقع (${monthlyList.toLocaleString()} د.ع) أكبر من أو يساوي التسديد الشهري (${monthlyPay.toLocaleString()} د.ع). بهذه الخطة سيزداد الدين ولن يصل للسقف المستهدف أبداً!`;
+                return;
+            }
+
+            const monthlyReduction = monthlyPay - monthlyList;
+            const monthsNeeded = Math.ceil(diff / monthlyReduction);
+
+            resBox.innerHTML = `⏳ بناءً على خطتك المقترحة:<br>
+                • إجمالي المديونية الحالي: <b>${globalDebtGlobalVar.toLocaleString()} د.ع</b> | السقف المستهدف: <b>${targetDebt.toLocaleString()} د.ع</b><br>
+                • الصافي الشهري لتخفيض الدين: <b>${monthlyReduction.toLocaleString()} د.ع/شهر</b><br>
+                🎯 تحتاج إلى ما يقارب <b>${monthsNeeded} شهراً</b> (حوالي ${(monthsNeeded / 12).toFixed(1)} سنة) للوصول إلى السقف المستهدف بنجاح.`;
+        }
+
+        function runPaymentSimulator() {
+            const availableMoney = parseFormattedNumber(document.getElementById('simulator-amount').value);
+            const resBox = document.getElementById('simulator-result');
+            if (availableMoney <= 0) {
+                resBox.innerHTML = 'الرجاء إدخال مبلغ صحيح للسيولة المتاحة.';
+                return;
+            }
+
+            let remaining = availableMoney;
+            let simulationText = '<ul class="space-y-1.5">';
+            
+            const sortedByPriority = [...suppliersCache].filter(s => !s.is_archived && s.remaining_balance > 0).sort((a, b) => a.remaining_balance - b.remaining_balance);
+
+            for (let s of sortedByPriority) {
+                if (remaining >= s.remaining_balance) {
+                    remaining -= s.remaining_balance;
+                    simulationText += `<li>✨ تسديد كامل مذخر <b>${s.name}</b> (${s.remaining_balance.toLocaleString()} د.ع)</li>`;
+                } else if (remaining > 0) {
+                    simulationText += `<li>💳 تسديد جزئي لمذخر <b>${s.name}</b> بمبلغ (${remaining.toLocaleString()} د.ع)</li>`;
+                    remaining = 0;
+                    break;
+                }
+            }
+            simulationText += '</ul>';
+            if (remaining > 0) {
+                simulationText += `<p class="mt-2 text-emerald-400 font-black">💡 يتبقى لديك فائض سيولة قدره (${remaining.toLocaleString()} د.ع)</p>`;
+            }
+            resBox.innerHTML = simulationText;
+        }
+
+        function sendWhatsAppReminder(phoneNum) {
+            let cleanPhone = (phoneNum || '').replace(/\D/g, '');
+            if (cleanPhone.startsWith('07')) {
+                cleanPhone = '964' + cleanPhone.slice(1);
+            } else if (cleanPhone.startsWith('7') && cleanPhone.length === 10) {
+                cleanPhone = '964' + cleanPhone;
+            } else if (cleanPhone.startsWith('00964')) {
+                cleanPhone = cleanPhone.slice(2);
+            }
+
+            const supObj = suppliersCache.find(s => s.id == activeSupId);
+            if (!supObj) return;
+
+            const text = `السلام عليكم مندوب مذخر (${activeSupName})\nنود إعلامكم بأن صافي رصيد حسابكم بذمة صيدلية أوروك هو (${supObj.remaining_balance.toLocaleString()} د.ع).\nيرجى المتابعة وتحديث كشف الحساب. وشكراً لتعاونكم.`;
+            const encodedText = encodeURIComponent(text);
+            const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encodedText}` : `https://wa.me/?text=${encodedText}`;
+            window.open(url, '_blank');
+        }
+
+        function exportAllSuppliersExcel() {
+            if (suppliersCache.length === 0) {
+                showToast('لا توجد بيانات للتصدير', 'error');
+                return;
+            }
+
+            let csv = '\uFEFFاسم المذخر,التصنيف,رقم الهاتف,إجمالي السحوبات,إجمالي التسديدات,الخصومات,الاسترجاعات,صافي المديونية\n';
+            suppliersCache.forEach(s => {
+                csv += `"${s.name}","${s.category || 'أدوية عامة'}","${s.phone || ''}","${s.total_lists}","${s.total_payments}","${s.total_discounts}","${s.total_returns}","${s.remaining_balance}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `تقرير_جميع_المذاخر_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showToast('✅ تم تصدير تقرير المذاخر الشامل بنجاح');
+        }
+
+        function filterByStatus(type) {
+            currentFilterStatus = type;
+            const activeBtn = "px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white shadow transition-all";
+            const inactiveBtn = "px-3.5 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition-all";
+
+            document.getElementById('filter-btn-all').className = type === 'all' ? activeBtn : inactiveBtn;
+            document.getElementById('filter-btn-critical').className = type === 'critical' ? activeBtn : inactiveBtn;
+            document.getElementById('filter-btn-zero').className = type === 'zero' ? activeBtn : inactiveBtn;
+            document.getElementById('filter-btn-archived').className = type === 'archived' ? activeBtn : inactiveBtn;
+            applyFilter();
+        }
+
+        function applyFilter() {
+            const query = (document.getElementById('sup-search-input').value || '').toLowerCase().trim();
+            const catFilter = document.getElementById('sup-category-filter').value;
+            
+            const cards = document.querySelectorAll('.supplier-card');
+            cards.forEach(card => {
+                const name = (card.getAttribute('data-supname') || '').toLowerCase();
+                const phone = (card.getAttribute('data-phone') || '').toLowerCase();
+                const category = card.getAttribute('data-category') || 'أدوية عامة';
+                const stat = card.getAttribute('data-statustype');
+                
+                let matchStatus = true;
+                if (currentFilterStatus === 'all') matchStatus = (stat !== 'archived');
+                else if (currentFilterStatus === 'critical') matchStatus = (stat === 'critical');
+                else if (currentFilterStatus === 'zero') matchStatus = (stat === 'zero');
+                else if (currentFilterStatus === 'archived') matchStatus = (stat === 'archived');
+
+                const matchCat = (catFilter === 'all' || category === catFilter);
+                const matchQuery = name.includes(query) || phone.includes(query);
+                card.style.display = (matchStatus && matchCat && matchQuery) ? 'flex' : 'none';
+            });
+
+            const rows = document.querySelectorAll('.supplier-row');
+            rows.forEach(row => {
+                const name = (row.getAttribute('data-supname') || '').toLowerCase();
+                const phone = (row.getAttribute('data-phone') || '').toLowerCase();
+                const category = row.getAttribute('data-category') || 'أدوية عامة';
+                const stat = row.getAttribute('data-statustype');
+                
+                let matchStatus = true;
+                if (currentFilterStatus === 'all') matchStatus = (stat !== 'archived');
+                else if (currentFilterStatus === 'critical') matchStatus = (stat === 'critical');
+                else if (currentFilterStatus === 'zero') matchStatus = (stat === 'zero');
+                else if (currentFilterStatus === 'archived') matchStatus = (stat === 'archived');
+
+                const matchCat = (catFilter === 'all' || category === catFilter);
+                const matchQuery = name.includes(query) || phone.includes(query);
+                row.style.display = (matchStatus && matchCat && matchQuery) ? '' : 'none';
+            });
+        }
+
+        async function addNewSupplier(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-sup-name').value.trim();
+            const phone = document.getElementById('new-sup-phone').value.trim();
+            const category = document.getElementById('new-sup-category').value;
+            if (!name) return;
+            try {
+                const res = await fetch('/api/suppliers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, category })
+                });
+                if (res.ok) {
+                    document.getElementById('new-sup-name').value = '';
+                    document.getElementById('new-sup-phone').value = '';
+                    closeModal('add-sup-modal');
+                    await loadSuppliers();
+                    showToast('تم إضافة المذخر بنجاح!');
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'المذخر موجود مسبقاً', 'error');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        async function updateSupplierPhone() {
+            if (!activeSupId) return;
+            const phone = document.getElementById('sup-phone-input').value.trim();
+            const supObj = suppliersCache.find(s => s.id == activeSupId);
+            const category = supObj ? supObj.category : 'أدوية عامة';
+            try {
+                const res = await fetch(`/api/suppliers/${activeSupId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: activeSupName, phone, category })
+                });
+                if (res.ok) {
+                    if (supObj) supObj.phone = phone;
+
+                    const waBtn = document.getElementById('whatsapp-direct-btn');
+                    if (phone) {
+                        waBtn.classList.remove('hidden');
+                        waBtn.onclick = () => sendWhatsAppReminder(phone);
+                    } else {
+                        waBtn.classList.add('hidden');
+                    }
+                    showToast('تم حفظ رقم الهاتف بنجاح');
+                }
+            } catch (e) {
+                showToast('خطأ في حفظ رقم الهاتف', 'error');
+            }
+        }
+
+        async function toggleArchiveActiveSupplier() {
+            if (!activeSupId) return;
+            const supObj = suppliersCache.find(s => s.id == activeSupId);
+            const isArchived = supObj && supObj.is_archived === 1;
+            const actionText = isArchived ? 'إلغاء أرشفة واستعادة' : 'أرشفة';
+            if (!confirm(`هل تريد ${actionText} مذخر (${activeSupName})؟`)) return;
+
+            try {
+                const res = await fetch(`/api/suppliers/${activeSupId}/archive`, { method: 'PUT' });
+                if (res.ok) {
+                    closeStatementModal();
+                    await loadSuppliers();
+                    showToast(`تمت عملية ${actionText} المذخر بنجاح!`);
+                }
+            } catch (e) {
+                showToast('خطأ في أرشفة المذخر', 'error');
+            }
+        }
+
+        async function deleteActiveSupplier() {
+            if (!confirm(`هل أنت متأكد تماماً من حذف مذخر (${activeSupName}) نهائياً مع كافة حركاته المالية؟`)) return;
+            try {
+                const res = await fetch(`/api/suppliers/${activeSupId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    closeStatementModal();
+                    await loadSuppliers();
+                    showToast('تم حذف المذخر بنجاح!');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        async function deleteZeroBalanceSuppliers() {
+            if (!confirm('هل أنت متأكد من رغبتك في حذف جميع المذاخر التي رصيدها صفر؟\nملاحظة: سيتم حذف المذاخر الصفرية وسجلاتها المرتبطة.')) return;
+            try {
+                const res = await fetch('/api/suppliers/zero-balance', { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(`✅ تم مسح ${data.deleted_count} من المذاخر الصفرية بنجاح`);
+                    await loadSuppliers();
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        async function downloadManualBackup() {
+            try {
+                const response = await fetch('/api/backup-download');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `uruk_pharmacy_backup_${new Date().toISOString().split('T')[0]}.db`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    showToast('✅ تم تحميل النسخة الاحتياطية بنجاح');
+                } else {
+                    showToast('⚠️ فشل تحميل النسخة الاحتياطية', 'error');
+                }
+            } catch (e) {
+                showToast('⚠️ خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        function openRestoreModal() {
+            openModal('restore-modal');
+        }
+
+        async function handleRestoreDatabase(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('restore-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            if (!confirm('هل أنت متأكد من رغبتك في استعادة قاعدة البيانات هذه؟ سيتم استبدال البيانات الحالية بعد أخذ نسخة أمان استباقية.')) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch('/api/backup-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    closeModal('restore-modal');
+                    await loadSuppliers();
+                    await loadIncomeFromDatabase();
+                    showToast('✅ تمت استعادة قاعدة البيانات بنجاح!');
+                } else {
+                    const err = await res.json();
+                    showToast(err.detail || 'فشل في استعادة النسخة', 'error');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        async function openAuditLogModal() {
+            try {
+                const res = await fetch('/api/audit-logs');
+                const logs = await res.json();
+                const tbody = document.getElementById('audit-tbody');
+                tbody.innerHTML = '';
+
+                if (logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">لا توجد سجلات تدقيق</td></tr>`;
+                } else {
+                    logs.forEach(l => {
+                        const timeFormatted = (l.action_time || '').replace('T', ' ').slice(0, 19);
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                                <td class="p-3 text-slate-500 font-bold whitespace-nowrap">${timeFormatted}</td>
+                                <td class="p-3"><span class="bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-black px-2.5 py-1 rounded-xl text-[11px]">${l.action_type}</span></td>
+                                <td class="p-3 font-medium text-slate-800 dark:text-slate-200">${l.details}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                openModal('audit-modal');
+            } catch (e) {
+                showToast('خطأ في جلب سجل التدقيق', 'error');
+            }
+        }
+
+        function updateListPreview() {
+            const supId = document.getElementById('l-supplier').value;
+            const listAmt = parseFormattedNumber(document.getElementById('l-amount').value);
+            const returnAmt = parseFormattedNumber(document.getElementById('l-return').value);
+            const sup = suppliersCache.find(s => s.id == supId);
+            const prevBal = sup ? sup.remaining_balance : 0;
+            const currentBal = prevBal + listAmt - returnAmt;
+
+            document.getElementById('prev-bal').innerText = prevBal.toLocaleString() + ' د.ع';
+            document.getElementById('current-bal').innerText = currentBal.toLocaleString() + ' د.ع';
+        }
+
+        async function saveNewList(e) {
+            e.preventDefault();
+            const data = {
+                supplier_id: parseInt(document.getElementById('l-supplier').value),
+                date: document.getElementById('l-date').value,
+                list_amount: parseFormattedNumber(document.getElementById('l-amount').value),
+                payment_amount: 0,
+                discount_amount: 0,
+                return_amount: parseFormattedNumber(document.getElementById('l-return').value),
+                notes: document.getElementById('l-notes').value
+            };
+
+            try {
+                const res = await fetch('/api/supplier-transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    closeModal('list-modal');
+                    document.getElementById('l-amount').value = 0;
+                    document.getElementById('l-return').value = 0;
+                    document.getElementById('l-notes').value = '';
+                    await loadSuppliers();
+                    if (activeSupId == data.supplier_id) selectSupplier(activeSupId, activeSupName);
+                    showToast('تم حفظ القائمة بنجاح!');
+                }
+            } catch (e) {
+                showToast('خطأ في حفظ القائمة', 'error');
+            }
+        }
+
+        function calcPaymentPreview() {
+            const supId = document.getElementById('p-supplier').value;
+            const payAmount = parseFormattedNumber(document.getElementById('p-amount').value);
+            const discAmount = parseFormattedNumber(document.getElementById('p-discount').value);
+            const sup = suppliersCache.find(s => s.id == supId);
+            const prevDebt = sup ? sup.remaining_balance : 0;
+            const afterDebt = prevDebt - payAmount - discAmount;
+
+            document.getElementById('p-prev-debt').innerText = prevDebt.toLocaleString() + ' د.ع';
+            document.getElementById('p-after-debt').innerText = afterDebt.toLocaleString() + ' د.ع';
+        }
+
+        async function savePayment(e) {
+            e.preventDefault();
+            const supId = parseInt(document.getElementById('p-supplier').value);
+            const payAmount = parseFormattedNumber(document.getElementById('p-amount').value);
+            const discAmount = parseFormattedNumber(document.getElementById('p-discount').value);
+            const pDate = document.getElementById('p-date').value;
+            const pNotes = document.getElementById('p-notes').value;
+
+            const data = {
+                supplier_id: supId,
+                date: pDate,
+                list_amount: 0,
+                payment_amount: payAmount,
+                discount_amount: discAmount,
+                return_amount: 0,
+                notes: pNotes
+            };
+
+            try {
+                const res = await fetch('/api/supplier-transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    closeModal('pay-modal');
+                    document.getElementById('p-amount').value = 0;
+                    document.getElementById('p-discount').value = 0;
+                    document.getElementById('p-notes').value = '';
+                    await loadSuppliers();
+                    if (activeSupId == data.supplier_id) selectSupplier(activeSupId, activeSupName);
+                    showToast('تم تثبيت التسديد بنجاح!');
+
+                    // فتح وصل السند الرسمي للطباعة
+                    const sup = suppliersCache.find(s => s.id == supId);
+                    if (sup) {
+                        openPaymentVoucher({
+                            id: result.id || 'TX',
+                            date: pDate,
+                            supplierName: sup.name,
+                            amount: payAmount,
+                            discount: discAmount,
+                            remaining: sup.remaining_balance,
+                            notes: pNotes
+                        });
+                    }
+                }
+            } catch (e) {
+                showToast('خطأ في تثبيت التسديد', 'error');
+            }
+        }
+
+        function openPaymentVoucher(data) {
+            document.getElementById('voucher-num').innerText = `#TX-${data.id}`;
+            document.getElementById('voucher-date').innerText = data.date;
+            document.getElementById('voucher-supplier').innerText = data.supplierName;
+            document.getElementById('voucher-amount').innerText = `${data.amount.toLocaleString()} د.ع`;
+            document.getElementById('voucher-discount').innerText = data.discount > 0 ? `${data.discount.toLocaleString()} د.ع` : 'لا يوجد';
+            document.getElementById('voucher-remaining').innerText = `${data.remaining.toLocaleString()} د.ع`;
+            document.getElementById('voucher-notes').innerText = data.notes || 'تسديد دفعة حساب';
+            openModal('voucher-modal');
+        }
+
+        async function selectSupplier(id, name) {
+            activeSupId = id;
+            activeSupName = name;
+            document.getElementById('statement-heading').innerText = `كشف حساب المذخر: ${name}`;
+            document.getElementById('statement-modal').classList.remove('hidden');
+
+            const supObj = suppliersCache.find(s => s.id == id);
+            const phoneVal = supObj ? (supObj.phone || '') : '';
+            const catVal = supObj ? (supObj.category || 'أدوية عامة') : 'أدوية عامة';
+            const isArchived = supObj && supObj.is_archived === 1;
+
+            document.getElementById('sup-phone-input').value = phoneVal;
+            document.getElementById('statement-category-chip').innerText = `🏷️ ${catVal}`;
+            
+            const archBtn = document.getElementById('archive-sup-btn');
+            if (isArchived) {
+                archBtn.innerText = '🔄 إلغاء الأرشفة';
+                archBtn.className = 'bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1';
+            } else {
+                archBtn.innerText = '📂 أرشفة';
+                archBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1';
+            }
+
+            if (supObj) {
+                document.getElementById('statement-total-debt-chip').innerText = `الرصيد الكلي: ${supObj.remaining_balance.toLocaleString()} د.ع`;
+            }
+
+            const waBtn = document.getElementById('whatsapp-direct-btn');
+            if (phoneVal) {
+                waBtn.classList.remove('hidden');
+                waBtn.onclick = () => sendWhatsAppReminder(phoneVal);
+            } else {
+                waBtn.classList.add('hidden');
+            }
+
+            try {
+                const res = await fetch(`/api/suppliers/${id}/statement`);
+                activeSupRowsCache = await res.json();
+                renderStatementTable();
+            } catch (e) {
+                showToast('خطأ في جلب كشف الحساب', 'error');
+            }
+        }
+
+        function closeStatementModal() {
+            activeSupId = null;
+            activeSupName = '';
+            document.getElementById('statement-modal').classList.add('hidden');
+        }
+
+        function renderStatementTable() {
+            const tbody = document.getElementById('statement-tbody');
+            tbody.innerHTML = '';
+
+            const supOverdue = calculateSupplierOverdue(activeSupRowsCache);
+            document.getElementById('statement-overdue').innerText = `الديون المستحقة (>45 يوم): ${supOverdue.toLocaleString()} د.ع`;
+
+            if (activeSupRowsCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-5 text-center text-slate-400 font-bold">لا توجد حركات مالية مسجلة لهذا المذخر</td></tr>`;
+                return;
+            }
+
+            activeSupRowsCache.forEach(r => {
+                let daysPassed = '-';
+                if (r.list_amount && r.list_amount > 0 && r.date) {
+                    daysPassed = getDaysPassed(r.date) + ' يوم';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                        <td class="p-3 font-bold">${r.date}</td>
+                        <td class="p-3 font-black text-indigo-600 dark:text-indigo-400">${daysPassed}</td>
+                        <td class="p-3 text-blue-600 dark:text-blue-400 font-black">${r.list_amount ? r.list_amount.toLocaleString() : '-'}</td>
+                        <td class="p-3 text-emerald-600 dark:text-emerald-400 font-black">${r.payment_amount ? r.payment_amount.toLocaleString() : '-'}</td>
+                        <td class="p-3 text-amber-600 dark:text-amber-400 font-bold">${r.discount_amount ? r.discount_amount.toLocaleString() : '-'}</td>
+                        <td class="p-3 text-rose-600 dark:text-rose-400 font-bold">${r.return_amount ? r.return_amount.toLocaleString() : '-'}</td>
+                        <td class="p-3 text-slate-500 font-medium">${r.notes || '-'}</td>
+                        <td class="p-3 text-center flex justify-center gap-1.5 no-print">
+                            <button onclick='openEditTrans(${JSON.stringify(r)})' class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 px-3 py-1 rounded-xl text-xs font-bold transition">تعديل</button>
+                            <button onclick="deleteTransaction(${r.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300 px-3 py-1 rounded-xl text-xs font-bold transition">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadMainPaymentPlan() {
+            const m = document.getElementById('main-plan-month').value;
+            try {
+                const planRes = await fetch(`/api/payment-plans/${m}`);
+                const plans = await planRes.json();
+                const planMap = {};
+                plans.forEach(p => planMap[p.supplier_id] = p.planned_amount);
+
+                const txBySupplier = {};
+                allTransactionsCache.forEach(t => {
+                    if (!txBySupplier[t.supplier_id]) txBySupplier[t.supplier_id] = [];
+                    txBySupplier[t.supplier_id].push(t);
+                });
+
+                const tbody = document.getElementById('main-plan-tbody');
+                tbody.innerHTML = '';
+
+                for (let s of suppliersCache) {
+                    if (s.is_archived) continue;
+                    const rows = txBySupplier[s.id] || [];
+                    const supOverdue = calculateSupplierOverdue(rows);
+                    const savedAmount = planMap[s.id] ? Number(planMap[s.id]).toLocaleString('en-US') : '';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                            <td class="p-3.5 font-black text-slate-900 dark:text-white">${s.name}</td>
+                            <td class="p-3.5 text-amber-600 dark:text-amber-400 font-black">${s.remaining_balance.toLocaleString()} د.ع</td>
+                            <td class="p-3.5 text-rose-600 font-black">${supOverdue.toLocaleString()} د.ع</td>
+                            <td class="p-3.5">
+                                <input type="text" onfocus="clearZero(this)" oninput="formatNumberInput(this); calcMainPlanTotal();" data-supid="${s.id}" class="main-plan-input w-full border border-slate-200 dark:border-slate-700 rounded-2xl p-2 bg-slate-50 dark:bg-slate-800 font-black text-purple-700 dark:text-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500" value="${savedAmount}" placeholder="المبلغ المخطط...">
+                            </td>
+                        </tr>
+                    `;
+                }
+                calcMainPlanTotal();
+            } catch (e) {
+                console.error('Error loading payment plan:', e);
+            }
+        }
+
+        function calcMainPlanTotal() {
+            const inputs = document.querySelectorAll('.main-plan-input');
+            let total = 0;
+            inputs.forEach(i => total += parseFormattedNumber(i.value));
+            document.getElementById('main-plan-total').innerText = total.toLocaleString() + ' د.ع';
+        }
+
+        async function saveMainPaymentPlan() {
+            const m = document.getElementById('main-plan-month').value;
+            const inputs = document.querySelectorAll('.main-plan-input');
+            const plans = [];
+            inputs.forEach(i => {
+                plans.push({
+                    supplier_id: parseInt(i.getAttribute('data-supid')),
+                    planned_amount: parseFormattedNumber(i.value)
+                });
+            });
+
+            try {
+                const res = await fetch('/api/payment-plans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_month: m, plans })
+                });
+
+                if (res.ok) {
+                    showToast('تم حفظ خطة التسديد الشهرية بنجاح!');
+                }
+            } catch (e) {
+                showToast('خطأ في حفظ خطة التسديد', 'error');
+            }
+        }
+
+        async function clearZeroBalance() {
+            if (!confirm(`هل أنت متأكد من تسوية وتصفير حساب المذخر (${activeSupName})؟`)) return;
+            const sup = suppliersCache.find(s => s.id == activeSupId);
+            if (!sup || sup.remaining_balance <= 0) {
+                showToast('لا يوجد رصيد مديونية موجب للتسوية', 'error');
+                return;
+            }
+
+            const data = {
+                supplier_id: activeSupId,
+                date: new Date().toISOString().split('T')[0],
+                list_amount: 0,
+                payment_amount: sup.remaining_balance,
+                discount_amount: 0,
+                return_amount: 0,
+                notes: 'تسوية وتصفير الحساب'
+            };
+
+            try {
+                const res = await fetch('/api/supplier-transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    await loadSuppliers();
+                    selectSupplier(activeSupId, activeSupName);
+                    showToast('تمت تسوية وتصفير الحساب بنجاح!');
+                }
+            } catch (e) {
+                showToast('خطأ في تسوية الحساب', 'error');
+            }
+        }
+
+        function exportStatementCSV() {
+            if (activeSupRowsCache.length === 0) {
+                showToast('لا توجد بيانات للتصدير', 'error');
+                return;
+            }
+
+            let csv = '\uFEFFالتاريخ,الأيام المنقضية,قيمة القائمة,التسديد,خصم التسديد,الاسترجاعات,الملاحظات\n';
+            activeSupRowsCache.forEach(r => {
+                let days = '-';
+                if (r.list_amount && r.list_amount > 0 && r.date) {
+                    days = getDaysPassed(r.date);
+                }
+                csv += `"${r.date}","${days}","${r.list_amount || 0}","${r.payment_amount || 0}","${r.discount_amount || 0}","${r.return_amount || 0}","${r.notes || ''}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `كشف_حساب_${activeSupName}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function openEditTrans(r) {
+            document.getElementById('edit-t-id').value = r.id;
+            document.getElementById('edit-t-date').value = r.date;
+            document.getElementById('edit-t-list').value = Number(r.list_amount || 0).toLocaleString('en-US');
+            document.getElementById('edit-t-pay').value = Number(r.payment_amount || 0).toLocaleString('en-US');
+            document.getElementById('edit-t-disc').value = Number(r.discount_amount || 0).toLocaleString('en-US');
+            document.getElementById('edit-t-ret').value = Number(r.return_amount || 0).toLocaleString('en-US');
+            document.getElementById('edit-t-notes').value = r.notes || '';
+            openModal('edit-trans-modal');
+        }
+
+        async function saveEditedTransaction(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-t-id').value;
+            const data = {
+                supplier_id: activeSupId,
+                date: document.getElementById('edit-t-date').value,
+                list_amount: parseFormattedNumber(document.getElementById('edit-t-list').value),
+                payment_amount: parseFormattedNumber(document.getElementById('edit-t-pay').value),
+                discount_amount: parseFormattedNumber(document.getElementById('edit-t-disc').value),
+                return_amount: parseFormattedNumber(document.getElementById('edit-t-ret').value),
+                notes: document.getElementById('edit-t-notes').value
+            };
+
+            try {
+                const res = await fetch(`/api/supplier-transactions/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    closeModal('edit-trans-modal');
+                    await loadSuppliers();
+                    selectSupplier(activeSupId, activeSupName);
+                    showToast('تم تحديث الحركة بنجاح!');
+                }
+            } catch (e) {
+                showToast('خطأ في تحديث الحركة', 'error');
+            }
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('حذف هذه الحركة؟')) return;
+            try {
+                const res = await fetch(`/api/supplier-transactions/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    await loadSuppliers();
+                    if (activeSupId) selectSupplier(activeSupId, activeSupName);
+                    showToast('تم حذف الحركة بنجاح');
+                }
+            } catch (e) {
+                showToast('خطأ في حذف الحركة', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
