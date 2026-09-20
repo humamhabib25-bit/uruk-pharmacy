@@ -29,15 +29,18 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses || true
+
       - name: Install Dependencies
         working-directory: ./uruk_mobile_app
         run: flutter pub get
 
       - name: Build Release APK
         working-directory: ./uruk_mobile_app
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Rename APK for Distribution
+      - name: Prepare APK for Release
         run: |
           mkdir -p release_output
           cp uruk_mobile_app/build/app/outputs/flutter-apk/app-release.apk release_output/uruk_pharmacy.apk
