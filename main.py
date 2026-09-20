@@ -17,17 +17,23 @@ try:
 except Exception:
     webview = None
 
-# تحديد المسارات لتعمل بشكل صحيح وثابت في وضع الأوفلاين والـ .exe
+# تحديد المسارات لتعمل بشكل صحيح وتضمن التزامن اللحظي المباشر بين الحاسبة والموبايل ونسخة dist
 if getattr(sys, 'frozen', False):
-    # قاعدة البيانات تُحفظ في نفس المجلد الموجود فيه ملف الـ .exe لضمان عدم ضياع البيانات
+    # عند تشغيل البرنامج كملف main.exe مجمع
     BASE_DIR = os.path.dirname(sys.executable)
-    # ملفات الواجهة تُقرأ من المسار المؤقت للبرنامج
     PUBLIC_PATH = os.path.join(sys._MEIPASS, "public")
+    DB_PATH = os.path.join(BASE_DIR, "uruk_pharmacy.db")
 else:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    PUBLIC_PATH = os.path.join(BASE_DIR, "public")
-
-DB_PATH = os.path.join(BASE_DIR, "uruk_pharmacy.db")
+    # عند التشغيل البرمجي أو تشغيل خادم الموبايل mobile_server.py
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PUBLIC_PATH = os.path.join(ROOT_DIR, "public")
+    BASE_DIR = ROOT_DIR
+    dist_db = os.path.join(ROOT_DIR, "dist", "uruk_pharmacy.db")
+    # توحيد المسار مع مجلد dist لضمان قراءة وتعديل نفس قاعدة البيانات النشطة فورياً
+    if os.path.exists(dist_db):
+        DB_PATH = dist_db
+    else:
+        DB_PATH = os.path.join(ROOT_DIR, "uruk_pharmacy.db")
 
 def create_backup():
     try:
@@ -61,7 +67,8 @@ if os.path.exists(PUBLIC_PATH):
     app.mount("/static", StaticFiles(directory=PUBLIC_PATH), name="static")
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
+    conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA foreign_keys = ON")
     conn.row_factory = sqlite3.Row
     return conn
