@@ -38,7 +38,8 @@ jobs:
 
       - name: Build Release APK
         working-directory: ./uruk_mobile_app
-        run: flutter build apk --release --no-tree-shake-icons -v
+        run: |
+          flutter build apk --release --no-tree-shake-icons -v > build_output.log 2>&1 || { tail -n 120 build_output.log; exit 1; }
 
       - name: Prepare APK for Release
         run: |
