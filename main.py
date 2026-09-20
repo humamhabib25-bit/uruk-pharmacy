@@ -6,7 +6,7 @@ import threading
 import uvicorn
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import sqlite3
@@ -245,6 +245,50 @@ def read_root():
         if os.path.exists(p):
             return FileResponse(p)
     return {"message": "🏥 نظام صيدلية أوروك يعمل بنجاح"}
+
+def get_local_ip():
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+@app.get("/api/server-info")
+def get_server_info():
+    ip = get_local_ip()
+    port = int(os.environ.get("PORT", 3000))
+    apk_github_url = "https://github.com/humamhabib25-bit/uruk-pharmacy/releases/download/v1.0.0/uruk_pharmacy.apk"
+    return {
+        "local_ip": ip,
+        "local_port": port,
+        "local_url": f"http://{ip}:{port}",
+        "cloud_url": "https://uruk-pharmacy.onrender.com",
+        "apk_download_url": "/api/download/apk",
+        "apk_github_url": apk_github_url
+    }
+
+@app.get("/api/download/apk")
+@app.get("/uruk_pharmacy.apk")
+def download_apk():
+    # 1. البحث عن الملف محلياً إن وُجد
+    local_candidates = [
+        os.path.join(BASE_DIR, "uruk_pharmacy.apk"),
+        os.path.join(BASE_DIR, "release_output", "uruk_pharmacy.apk"),
+        os.path.join(BASE_DIR, "uruk_mobile_app", "build", "app", "outputs", "flutter-apk", "app-release.apk"),
+    ]
+    for path in local_candidates:
+        if os.path.exists(path) and os.path.isfile(path):
+            return FileResponse(path, media_type="application/vnd.android.package-archive", filename="uruk_pharmacy.apk")
+    
+    # 2. التحويل التلقائي لرابط الإصدار المباشر على GitHub
+    return RedirectResponse(
+        url="https://github.com/humamhabib25-bit/uruk-pharmacy/releases/download/v1.0.0/uruk_pharmacy.apk",
+        status_code=307
+    )
 
 @app.get("/api/backup-download")
 def download_backup():

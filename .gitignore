@@ -22,3 +22,12 @@ desktop.ini
 
 # Backups
 backups/backup_before_*
+
+# Flutter Mobile
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+uruk_mobile_app/build/
+*.apk

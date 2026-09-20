@@ -1,0 +1,72 @@
+name: Build & Release Flutter APK (صيدلية أوروك)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        working-directory: ./uruk_mobile_app
+        run: flutter pub get
+
+      - name: Build Release APK
+        working-directory: ./uruk_mobile_app
+        run: flutter build apk --release
+
+      - name: Rename APK for Distribution
+        run: |
+          mkdir -p release_output
+          cp uruk_mobile_app/build/app/outputs/flutter-apk/app-release.apk release_output/uruk_pharmacy.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uruk-pharmacy-apk
+          path: release_output/uruk_pharmacy.apk
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0
+          name: "صيدلية أوروك - تطبيق الموبايل v1.0.0 (Android & iOS)"
+          body: |
+            ## 📱 تطبيق نظام إدارة صيدلية أوروك للهواتف الذكية
+
+            ### 📥 رابط التحميل المباشر للأندرويد:
+            اضغط على الرابط التالي من هاتفك لتحميل وتثبيت البرنامج بصيغة APK مباشرة:
+            👉 **[تحميل uruk_pharmacy.apk](https://github.com/humamhabib25-bit/uruk-pharmacy/releases/download/v1.0.0/uruk_pharmacy.apk)**
+
+            ---
+            ### 🍎 لمستخدمي الآيفون (iPhone / iOS):
+            1. افتح رابط النظام في متصفح **Safari**.
+            2. اضغط على زر **مشاركة (Share 📤)** أسفل الشاشة.
+            3. اختر **إضافة إلى الصفحة الرئيسية (Add to Home Screen ➕)**.
+            4. سيعمل فوراً كتطبيق كامل بشعار صيدلية أوروك وبملء الشاشة بدون شريط سفاري.
+          draft: false
+          prerelease: false
+          files: release_output/uruk_pharmacy.apk

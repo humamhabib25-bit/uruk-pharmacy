@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صيدلية أوروك - نظام إدارة المذاخر والإيرادات والديون المتقدم</title>
+    <!-- إعدادات تطبيق الموبايل PWA للأندرويد والآيفون -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="صيدلية أوروك">
+    <meta name="theme-color" content="#0d9488">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/caduceus.png">
     <!-- خط القاهرة العربي الفاخر Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -228,6 +235,10 @@
 
                     <!-- أزرار سريعة مصغرة للهاتف والحاسبة -->
                     <div class="flex items-center gap-1.5 flex-wrap">
+                        <button type="button" onclick="openMobileAppModal()" class="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 active:scale-95 text-white p-2 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 shadow-md shadow-teal-900/30 ring-1 ring-teal-400/40" title="تحميل تطبيق الموبايل (أندرويد / آيفون)">
+                            <span>📱</span>
+                            <span class="hidden sm:inline">تطبيق الموبايل</span>
+                        </button>
                         <button type="button" onclick="downloadManualBackup()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white p-2 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 shadow-md" title="نسخة احتياطية">
                             <span>💾</span>
                             <span class="hidden sm:inline">نسخة احتياطية</span>
@@ -1415,6 +1426,116 @@
                     <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-black shadow">بدء الاستعادة</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- مودال تطبيق الموبايل (Android APK & iPhone) -->
+    <div id="mobile-app-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 sm:p-7 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 my-8 max-h-[90vh] flex flex-col">
+            <!-- رأس المودال -->
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-2xl flex items-center justify-center text-2xl border border-teal-500/20">
+                        📱
+                    </div>
+                    <div>
+                        <h3 class="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                            تطبيق صيدلية أوروك للهواتف
+                            <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/20">Flutter Native</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">جاهز للتنزيل والاستخدام على هواتف الأندرويد والآيفون مع التزامن المباشر</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('mobile-app-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-xl text-lg font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <!-- بطاقات المنصات -->
+            <div class="space-y-4 overflow-y-auto pr-1">
+                <!-- قسم الأندرويد (APK) -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/20 border-2 border-emerald-500/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🤖</span>
+                            <div>
+                                <h4 class="font-black text-sm text-emerald-900 dark:text-emerald-300">نظام أندرويد (تطبيق APK المباشر)</h4>
+                                <p class="text-[11px] text-emerald-700 dark:text-emerald-400">تطبيق Flutter مخصص يعمل بسرعة فائقة ويتصل بسيرفر الصيدلية</p>
+                            </div>
+                        </div>
+                        <span class="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">ملف .apk</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
+                        <a href="/api/download/apk" download="uruk_pharmacy.apk" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs py-3 px-4 rounded-xl shadow-lg shadow-emerald-700/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-center">
+                            <span>📥</span>
+                            <span>تحميل التطبيق الآن (uruk_pharmacy.apk)</span>
+                        </a>
+                        <a href="https://github.com/humamhabib25-bit/uruk-pharmacy/releases/latest" target="_blank" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 transition text-center">
+                            <span>🐙</span>
+                            <span>صفحة الإصدارات GitHub</span>
+                        </a>
+                    </div>
+
+                    <div class="text-[11px] text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-slate-900/60 p-3 rounded-xl border border-emerald-200 dark:border-emerald-900/40">
+                        💡 <b>طريقة التثبيت:</b> بعد انتهاء التحميل، اضغط على الملف في هاتفك، وإذا ظهر تحذير أمان اختر (السماح بالتثبيت من هذا المصدر)، وسيتم تثبيت التطبيق بنجاح.
+                    </div>
+                </div>
+
+                <!-- قسم الآيفون (iOS) -->
+                <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/20 border-2 border-indigo-500/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🍎</span>
+                            <div>
+                                <h4 class="font-black text-sm text-indigo-900 dark:text-indigo-300">أجهزة الآيفون (Apple iPhone / iOS)</h4>
+                                <p class="text-[11px] text-indigo-700 dark:text-indigo-400">يعمل كتطبيق كامل ومستقل بملء الشاشة وبشعار الصيدلية (PWA Standalone)</p>
+                            </div>
+                        </div>
+                        <span class="bg-indigo-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">بدون App Store</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-700 dark:text-slate-300">
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-indigo-100 dark:border-indigo-900/40 text-center">
+                            <span class="font-black text-indigo-600 block text-xs">1. افتح Safari 🧭</span>
+                            افتح رابط الصيدلية في متصفح Safari بالآيفون.
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-indigo-100 dark:border-indigo-900/40 text-center">
+                            <span class="font-black text-indigo-600 block text-xs">2. زر المشاركة 📤</span>
+                            اضغط على زر المشاركة أسفل شاشة Safari.
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-indigo-100 dark:border-indigo-900/40 text-center">
+                            <span class="font-black text-indigo-600 block text-xs">3. إضافة للشاشة ➕</span>
+                            اختر "إضافة إلى الصفحة الرئيسية (Add to Home Screen)".
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مسح الـ QR للفتح الفوري على الهاتف -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-4">
+                    <div class="bg-white p-2.5 rounded-2xl shadow-md border border-slate-200 flex-shrink-0">
+                        <img id="mobile-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=http://127.0.0.1:3000" alt="QR Code" class="w-28 h-28 object-contain">
+                    </div>
+                    <div class="space-y-1.5 text-center sm:text-right flex-1">
+                        <div class="font-black text-xs text-slate-800 dark:text-slate-200 flex items-center justify-center sm:justify-start gap-1.5">
+                            <span>📷</span>
+                            <span>مسح الكود بكاميرا الموبايل:</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">وجه كاميرا هاتفك نحو الرمز لفتح النظام أو تنزيل التطبيق فوراً دون كتابة العنوان.</p>
+                        <div class="flex items-center gap-2 pt-1 justify-center sm:justify-start">
+                            <code id="mobile-current-link" class="text-[10px] bg-slate-200 dark:bg-slate-950 text-slate-800 dark:text-slate-300 px-2.5 py-1 rounded-lg font-mono dir-ltr select-all">http://...:3000</code>
+                            <button type="button" onclick="copyMobileLink()" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-lg font-bold">نسخ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ذيل المودال -->
+            <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="closeModal('mobile-app-modal')" class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-black text-xs transition">
+                    إغلاق
+                </button>
+            </div>
         </div>
     </div>
 
@@ -4004,6 +4125,33 @@
             } catch (e) {
                 showToast('⚠️ خطأ في الاتصال بالسيرفر', 'error');
             }
+        }
+
+        async function openMobileAppModal() {
+            openModal('mobile-app-modal');
+            try {
+                const res = await fetch('/api/server-info');
+                if (res.ok) {
+                    const info = await res.json();
+                    const targetUrl = (info.local_url && !info.local_url.includes('127.0.0.1')) ? info.local_url : window.location.origin;
+                    document.getElementById('mobile-current-link').innerText = targetUrl;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(targetUrl)}`;
+                    document.getElementById('mobile-qr-image').src = qrUrl;
+                }
+            } catch (e) {
+                const currentOrigin = window.location.origin;
+                document.getElementById('mobile-current-link').innerText = currentOrigin;
+                document.getElementById('mobile-qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(currentOrigin)}`;
+            }
+        }
+
+        function copyMobileLink() {
+            const link = document.getElementById('mobile-current-link').innerText;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('✅ تم نسخ الرابط بنجاح');
+            }).catch(() => {
+                showToast('الرابط: ' + link);
+            });
         }
 
         function openRestoreModal() {
