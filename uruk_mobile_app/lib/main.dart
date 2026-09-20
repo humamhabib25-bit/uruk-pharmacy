@@ -239,7 +239,8 @@ class _PharmacyHomeScreenState extends State<PharmacyHomeScreen> {
             TextField(
               controller: textController,
               keyboardType: TextInputType.url,
-              style: const TextStyle(color: Colors.white, direction: TextDirection.ltr),
+              style: const TextStyle(color: Colors.white),
+              textDirection: TextDirection.ltr,
               decoration: InputDecoration(
                 hintText: 'http://192.168.1.X:3000',
                 hintStyle: const TextStyle(color: Colors.white30),
@@ -278,7 +279,8 @@ class _PharmacyHomeScreenState extends State<PharmacyHomeScreen> {
                     ),
                     subtitle: Text(
                       p["url"]!,
-                      style: const TextStyle(color: Colors.white60, fontSize: 11, direction: TextDirection.ltr),
+                      style: const TextStyle(color: Colors.white60, fontSize: 11),
+                      textDirection: TextDirection.ltr,
                     ),
                     trailing: const Icon(Icons.chevron_left, color: Colors.white38),
                     onTap: () {
@@ -483,8 +485,8 @@ class _PharmacyHomeScreenState extends State<PharmacyHomeScreen> {
               style: const TextStyle(
                 color: Colors.white54,
                 fontSize: 13,
-                direction: TextDirection.ltr,
               ),
+              textDirection: TextDirection.ltr,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
