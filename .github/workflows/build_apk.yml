@@ -40,11 +40,8 @@ jobs:
         working-directory: ./uruk_mobile_app
         run: |
           flutter build apk --release --no-tree-shake-icons -v > build_output.log 2>&1 || {
-            echo "### Build Error Log" >> $GITHUB_STEP_SUMMARY
-            echo '```text' >> $GITHUB_STEP_SUMMARY
-            tail -n 80 build_output.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -n 60 build_output.log
+            ERR=$(tail -n 30 build_output.log | tr '\n' ' ' | tr '\r' ' ')
+            echo "::error title=Gradle Build Error::$ERR"
             exit 1
           }
 
